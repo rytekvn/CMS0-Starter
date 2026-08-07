@@ -1,0 +1,108 @@
+// Rytek CMS Starter - base schema (v0.1)
+// ponytail: field toi thieu de migrate chay duoc, domain fields tu them khi customize
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  roles     UserRole[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+}
+
+model Role {
+  id          String       @id @default(cuid())
+  name        String       @unique // super_admin | admin | staff | viewer
+  permissions Permission[]
+  users       UserRole[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+}
+
+model Permission {
+  id    String @id @default(cuid())
+  key   String @unique // vd: "product.create"
+  roles Role[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+}
+
+model UserRole {
+  id     String @id @default(cuid())
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+
+  @@unique([userId, roleId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String // vd: "product.update"
+  entity    String
+  entityId  String
+  metadata  Json?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+}
+
+model FileAsset {
+  id       String @id @default(cuid())
+  url      String
+  filename String
+  mimeType String
+  size     Int
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+}
+
+// CRUD mau (v0.1) - theo pattern Products
+model Product {
+  id     String  @id @default(cuid())
+  name   String
+  status String  @default("active")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy String?
+  updatedBy String?
+  deletedAt DateTime?
+}
