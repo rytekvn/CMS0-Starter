@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # corepack truoc setup-node de setup-node tim thay pnpm khi bat cache.
+      # Phien ban pnpm lay tu field `packageManager` trong package.json.
+      - run: corepack enable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Bat buoc truoc typecheck: apps/api-legacy dung type sinh ra tu Prisma schema.
+      - run: pnpm db:generate
+
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
