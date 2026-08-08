@@ -1,0 +1,69 @@
+# Map 1:1 tu code dang chay, khong them field nao chua ton tai:
+#   - prisma/schema.prisma                              -> model Product
+#   - apps/api-legacy/src/schemas/product.schema.ts     -> validation
+#   - apps/api-legacy/src/services/product.service.ts   -> audit event
+entity: Product
+description: CRUD mau cua starter - dung lam pattern khi tao module moi
+
+fields:
+  id:
+    type: string
+    generated: true
+    # Prisma @default(cuid()), khong phai uuid
+    format: cuid
+  name:
+    type: string
+    required: true
+    minLength: 1
+  status:
+    type: enum
+    values: [active, inactive]
+    default: active
+    # Luu y: o DB la String @default("active"), enum chi duoc ep o tang Zod.
+    # DB khong chan gia tri khac -> muon chan that phai them CHECK/enum o migration.
+    enforcedAt: application
+  createdAt:
+    type: datetime
+    generated: true
+  updatedAt:
+    type: datetime
+    generated: true
+  createdBy:
+    type: string
+    required: false
+    description: User.id cua nguoi tao
+  updatedBy:
+    type: string
+    required: false
+    description: User.id cua nguoi sua gan nhat
+  deletedAt:
+    type: datetime
+    required: false
+    description: Soft delete. Moi query list/detail phai loc deletedAt = null
+
+indexes: []
+# Schema hien tai chua khai bao index nao ngoai primary key.
+# Khi bang lon: can index cho (deletedAt, createdAt) va (status).
+
+softDelete: true
+defaultOrder: createdAt desc
+
+permissions:
+  - product.read
+  - product.create
+  - product.update
+  - product.delete
+  - product.import
+  - product.export
+  - product.bulk
+
+audit:
+  # Chuoi `action` that duoc ghi vao AuditLog qua logging/audit.ts
+  events:
+    - product.create          # entityId = Product.id, metadata: { name }
+    - product.update          # entityId = Product.id, metadata: { fields }
+    - product.delete          # entityId = Product.id, khong metadata
+    - product.import          # entityId = "*",        metadata: { success, failed }
+    - product.bulk.delete     # entityId = "*",        metadata: { ids, action, count }
+    - product.bulk.activate   # entityId = "*",        metadata: { ids, action, count }
+    - product.bulk.deactivate # entityId = "*",        metadata: { ids, action, count }

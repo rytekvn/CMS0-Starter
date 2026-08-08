@@ -1,0 +1,30 @@
+# Map 1:1 tu apps/api-legacy/src/seed.ts (PERMISSION_KEYS + ROLE_PERMISSIONS).
+# Quyen luu trong DB (Role -> Permission), khong hard-code trong code.
+entity: Product
+
+permissions:
+  product.read:   Xem danh sach va chi tiet product
+  product.create: Tao product moi
+  product.update: Sua product
+  product.delete: Xoa mem product (set deletedAt)
+  product.import: Import product tu file CSV
+  product.export: Export danh sach product ra CSV
+  product.bulk:   Hanh dong hang loat (delete / activate / deactivate)
+
+# x = co quyen. 4 role mac dinh do seed tao ra.
+matrix:
+  super_admin: [product.read, product.create, product.update, product.delete, product.import, product.export, product.bulk]
+  admin:       [product.read, product.create, product.update, product.delete, product.import, product.export, product.bulk]
+  # staff export va sua duoc, nhung khong import/bulk (ghi hang loat de admin lam).
+  staff:       [product.read, product.create, product.update, product.export]
+  viewer:      [product.read]
+
+enforcement:
+  backend:
+    - Moi route product deu qua `requireAuth` truoc (401 neu thieu/sai token).
+    - Moi route kiem tra bang `requirePermission("<key>")` -> 403 neu khong du quyen.
+    - Role da soft delete (deletedAt != null) khong con cap quyen (xem permissions/can.ts).
+  frontend:
+    - UI an/hien action theo cung bo key nay
+      (apps/admin-web-legacy/src/modules/products/permissions.ts).
+    - An o frontend chi la UX; backend van la cho quyet dinh.
