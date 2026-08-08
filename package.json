@@ -1,0 +1,16 @@
+{
+  "name": "rytek-platform",
+  "version": "0.3.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.5",
+  "scripts": {
+    "typecheck": "pnpm -r typecheck",
+    "db:generate": "prisma generate --schema prisma/schema.prisma",
+    "db:migrate": "pnpm --filter cms-starter-api db:migrate",
+    "db:seed": "pnpm --filter cms-starter-api db:seed"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.22.0",
+    "prisma": "^5.22.0"
+  }
+}
