@@ -1,0 +1,76 @@
+/* Design token dung chung voi admin-web-legacy (nguon: apps/admin-web-legacy/src/styles.css).
+   Chi copy token, khong copy component CSS - component se lam lai o dot migrate UI. */
+
+:root {
+  /* Surfaces */
+  --bg-body: #f0f4f8;
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-hover: #f8fafc;
+  --bg-muted: #f1f5f9;
+
+  /* Text */
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --text-inverse: #ffffff;
+
+  /* Borders */
+  --border: #e4e8ef;
+  --border-soft: #eef1f5;
+
+  /* Brand */
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-soft: #eff6ff;
+
+  /* Semantic */
+  --success: #10b981;
+  --success-soft: #ecfdf5;
+  --danger: #ef4444;
+  --danger-soft: #fef2f2;
+  --warning: #f59e0b;
+  --warning-soft: #fffbeb;
+
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04);
+  --shadow-card: 0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
+}
+
+:root[data-theme="dark"] {
+  --bg-body: #0b1120;
+  --bg-card: #141b2d;
+  --bg-sidebar: #141b2d;
+  --bg-hover: #1c2438;
+  --bg-muted: #1a2237;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  --text-inverse: #0b1120;
+  --border: #222c42;
+  --border-soft: #1a2237;
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
+  --primary-soft: #0f2847;
+  --success: #34d399;
+  --success-soft: #0f2a20;
+  --danger: #f87171;
+  --danger-soft: #2b1414;
+  --warning: #fbbf24;
+  --warning-soft: #2b1f08;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font: 14px/1.55 -apple-system, "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg-body);
+}
