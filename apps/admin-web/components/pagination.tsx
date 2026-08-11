@@ -1,6 +1,7 @@
 // Phan trang dung chung. Trang nam trong URL (?page=) nen day la 2 the <Link>
 // chu khong phai callback: F5 / chia se link van dung trang.
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export function Pagination({
   page,
@@ -14,23 +15,27 @@ export function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="pagination">
+    <div className="mt-4 flex items-center gap-3.5 text-[13px] text-muted-foreground">
       {page <= 1 ? (
-        <button type="button" disabled>
+        <Button type="button" variant="outline" size="sm" disabled>
           Truoc
-        </button>
+        </Button>
       ) : (
-        <Link href={hrefFor(page - 1)}>Truoc</Link>
+        <Button asChild variant="outline" size="sm">
+          <Link href={hrefFor(page - 1)}>Truoc</Link>
+        </Button>
       )}
       <span>
         Trang {page}/{totalPages}
       </span>
       {page >= totalPages ? (
-        <button type="button" disabled>
+        <Button type="button" variant="outline" size="sm" disabled>
           Sau
-        </button>
+        </Button>
       ) : (
-        <Link href={hrefFor(page + 1)}>Sau</Link>
+        <Button asChild variant="outline" size="sm">
+          <Link href={hrefFor(page + 1)}>Sau</Link>
+        </Button>
       )}
     </div>
   );

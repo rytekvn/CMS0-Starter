@@ -4,6 +4,9 @@
 // Dung chung cho module can dinh kem file; caller tu kiem quyen "file.upload" neu can.
 // ponytail: chua trang nao dung - port de giu parity voi legacy FileUploader.tsx.
 import { useState, useTransition, type ChangeEvent } from "react";
+import { FormError } from "@/components/form-error";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { uploadFile, type FileAsset } from "./file-uploader.actions";
 
 export type { FileAsset };
@@ -32,22 +35,24 @@ export function FileUploader({ onUploaded }: { onUploaded?: (file: FileAsset) =>
   }
 
   return (
-    <div className="file-uploader">
-      <input type="file" onChange={upload} disabled={busy} />
-      {busy && <span className="file-uploader-hint">Dang tai len...</span>}
-      {error && <p className="form-error">{error}</p>}
+    <div className="flex flex-col gap-2">
+      <Input type="file" onChange={upload} disabled={busy} />
+      {busy && <span className="text-xs text-muted-foreground">Dang tai len...</span>}
+      {error && <FormError>{error}</FormError>}
       {file && (
-        <p className="file-uploader-result">
+        <p className="flex items-center gap-2.5">
           <span>{file.filename}</span>
-          <span className="file-uploader-hint">{formatSize(file.size)}</span>
+          <span className="text-xs text-muted-foreground">{formatSize(file.size)}</span>
           {/* Route proxy dat Content-Disposition -> trinh duyet tai file, khong doi trang. */}
-          <button
+          <Button
             type="button"
-            className="link"
+            variant="link"
+            size="sm"
+            className="h-auto p-0"
             onClick={() => window.location.assign(`/api/files/${file.id}`)}
           >
             Tai ve
-          </button>
+          </Button>
         </p>
       )}
     </div>

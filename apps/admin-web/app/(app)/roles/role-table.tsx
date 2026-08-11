@@ -1,11 +1,14 @@
 "use client";
 
 // Dao Client duy nhat cua trang danh sach: xac nhan xoa.
+import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { DataTable, type Column } from "@/components/data-table";
+import { DataTable } from "@/components/data-table";
+import { FormError } from "@/components/form-error";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { removeRole } from "./actions";
 import type { Role } from "./schema";
 
@@ -20,33 +23,54 @@ export function RoleTable({
   const [error, setError] = useState("");
   const [, startTransition] = useTransition();
 
-  const columns: Column<Role>[] = [
+  const columns: ColumnDef<Role>[] = [
     {
-      key: "name",
+      id: "name",
       header: "Ten",
-      render: (r) => <Link href={`/roles/${r.id}`}>{r.name}</Link>,
+      cell: ({ row }) => (
+        <Link href={`/roles/${row.original.id}`} className="text-primary hover:underline">
+          {row.original.name}
+        </Link>
+      ),
     },
-    { key: "count", header: "So quyen", render: (r) => r.permissions.length },
     {
-      key: "createdAt",
+      id: "count",
+      header: "So quyen",
+      cell: ({ row }) => row.original.permissions.length,
+    },
+    {
+      id: "createdAt",
       header: "Ngay tao",
-      render: (r) => (
+      cell: ({ row }) => (
         // suppressHydrationWarning: server va browser co the khac timezone.
         <span suppressHydrationWarning>
-          {new Date(r.createdAt).toLocaleDateString("vi-VN")}
+          {new Date(row.original.createdAt).toLocaleDateString("vi-VN")}
         </span>
       ),
     },
     {
-      key: "actions",
+      id: "actions",
       header: "",
-      render: (r) => (
-        <span className="row-actions">
-          {can.update && <Link href={`/roles/${r.id}/edit`}>Sua</Link>}
+      cell: ({ row }) => (
+        <span className="flex items-center gap-3">
+          {can.update && (
+            <Link
+              href={`/roles/${row.original.id}/edit`}
+              className="text-primary hover:underline"
+            >
+              Sua
+            </Link>
+          )}
           {can.delete && (
-            <button type="button" className="link danger" onClick={() => setToDelete(r)}>
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="h-auto p-0 text-danger"
+              onClick={() => setToDelete(row.original)}
+            >
               Xoa
-            </button>
+            </Button>
           )}
         </span>
       ),
@@ -59,14 +83,14 @@ export function RoleTable({
         title="Roles"
         actions={
           can.create && (
-            <Link className="button" href="/roles/new">
-              + Them moi
-            </Link>
+            <Button asChild>
+              <Link href="/roles/new">+ Them moi</Link>
+            </Button>
           )
         }
       />
 
-      {error && <p className="form-error">{error}</p>}
+      {error && <FormError>{error}</FormError>}
 
       <DataTable columns={columns} rows={rows} empty="Chua co role nao" />
 

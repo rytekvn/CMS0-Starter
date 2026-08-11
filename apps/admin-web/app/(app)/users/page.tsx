@@ -23,7 +23,7 @@ export default async function UsersPage({
   // Vao thang URL ma khong co quyen: backend cung chan (403), o day chan som
   // de hien thong bao ro rang thay vi mot dong loi.
   if (!has(userPermissions.read))
-    return <p className="empty-state">Ban khong co quyen xem danh sach user.</p>;
+    return <p className="py-6 text-muted-foreground">Ban khong co quyen xem danh sach user.</p>;
 
   const users = await listUsers();
 

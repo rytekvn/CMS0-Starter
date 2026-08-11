@@ -2,12 +2,15 @@
 
 // Dao Client duy nhat cua trang danh sach: chon dong, xac nhan xoa, bulk, import.
 // Du lieu va quyen do Server Component truyen xuong; moi lenh ghi goi Server Action.
+import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { useRef, useState, useTransition, type ChangeEvent, type ReactNode } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { DataTable, type Column } from "@/components/data-table";
+import { DataTable } from "@/components/data-table";
+import { FormError } from "@/components/form-error";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
+import { Button } from "@/components/ui/button";
 import { importProductsCsv, removeProduct, runBulkAction } from "./actions";
 import type { BulkAction, ImportResult, Product } from "./schema";
 
@@ -64,33 +67,54 @@ export function ProductTable({
     setImportResult(result ?? null);
   }
 
-  const columns: Column<Product>[] = [
+  const columns: ColumnDef<Product>[] = [
     {
-      key: "name",
+      id: "name",
       header: "Ten",
-      render: (p) => <Link href={`/products/${p.id}`}>{p.name}</Link>,
+      cell: ({ row }) => (
+        <Link href={`/products/${row.original.id}`} className="text-primary hover:underline">
+          {row.original.name}
+        </Link>
+      ),
     },
-    { key: "status", header: "Trang thai", render: (p) => <StatusBadge status={p.status} /> },
     {
-      key: "createdAt",
+      id: "status",
+      header: "Trang thai",
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+    },
+    {
+      id: "createdAt",
       header: "Ngay tao",
-      render: (p) => (
+      cell: ({ row }) => (
         // suppressHydrationWarning: server va browser co the khac timezone.
         <span suppressHydrationWarning>
-          {new Date(p.createdAt).toLocaleDateString("vi-VN")}
+          {new Date(row.original.createdAt).toLocaleDateString("vi-VN")}
         </span>
       ),
     },
     {
-      key: "actions",
+      id: "actions",
       header: "",
-      render: (p) => (
-        <span className="row-actions">
-          {can.update && <Link href={`/products/${p.id}/edit`}>Sua</Link>}
+      cell: ({ row }) => (
+        <span className="flex items-center gap-3">
+          {can.update && (
+            <Link
+              href={`/products/${row.original.id}/edit`}
+              className="text-primary hover:underline"
+            >
+              Sua
+            </Link>
+          )}
           {can.delete && (
-            <button type="button" className="link danger" onClick={() => setToDelete(p)}>
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="h-auto p-0 text-danger"
+              onClick={() => setToDelete(row.original)}
+            >
               Xoa
-            </button>
+            </Button>
           )}
         </span>
       ),
@@ -106,15 +130,23 @@ export function ProductTable({
             {can.export && (
               // <button> chu khong <a>: giu dung style cua legacy. Content-Disposition
               // cua route proxy khien trinh duyet tai file thay vi doi trang.
-              <button type="button" onClick={() => window.location.assign(exportHref)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => window.location.assign(exportHref)}
+              >
                 Export CSV
-              </button>
+              </Button>
             )}
             {can.import && (
               <>
-                <button type="button" onClick={() => importInput.current?.click()}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => importInput.current?.click()}
+                >
                   Import CSV
-                </button>
+                </Button>
                 <input
                   ref={importInput}
                   type="file"
@@ -125,9 +157,9 @@ export function ProductTable({
               </>
             )}
             {can.create && (
-              <Link className="button" href="/products/new">
-                + Them moi
-              </Link>
+              <Button asChild>
+                <Link href="/products/new">+ Them moi</Link>
+              </Button>
             )}
           </>
         }
@@ -135,18 +167,24 @@ export function ProductTable({
 
       {filters}
 
-      {error && <p className="form-error">{error}</p>}
+      {error && <FormError>{error}</FormError>}
 
       {importResult && (
-        <div className="import-result">
-          <p>
+        <div className="mb-3 rounded-md border border-border bg-surface px-4 py-3 text-[13px] shadow-sm">
+          <p className="flex items-center gap-2.5">
             Import: {importResult.success} thanh cong, {importResult.failed} loi.
-            <button type="button" className="link" onClick={() => setImportResult(null)}>
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="h-auto p-0"
+              onClick={() => setImportResult(null)}
+            >
               Dong
-            </button>
+            </Button>
           </p>
           {importResult.errors.length > 0 && (
-            <ul>
+            <ul className="mt-2.5 list-disc pl-4.5 text-danger">
               {importResult.errors.map((err) => (
                 <li key={err.row}>
                   Dong {err.row}: {err.message}
@@ -158,17 +196,22 @@ export function ProductTable({
       )}
 
       {can.bulk && selected.length > 0 && (
-        <div className="bulk-bar">
+        <div className="mb-3 flex items-center gap-2.5 rounded-md border border-primary bg-primary/10 px-3.5 py-2.5 text-[13px] font-semibold text-primary">
           <span>Da chon {selected.length} dong</span>
-          <button type="button" onClick={() => bulk("activate")}>
+          <Button type="button" variant="outline" size="sm" onClick={() => bulk("activate")}>
             Kich hoat
-          </button>
-          <button type="button" onClick={() => bulk("deactivate")}>
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => bulk("deactivate")}>
             Ngung kich hoat
-          </button>
-          <button type="button" className="danger" onClick={() => setBulkDeleting(true)}>
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={() => setBulkDeleting(true)}
+          >
             Xoa
-          </button>
+          </Button>
         </div>
       )}
 

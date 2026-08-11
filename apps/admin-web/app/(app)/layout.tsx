@@ -13,15 +13,15 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const has = (key: string) => user.permissions.includes(key);
 
   return (
-    <div className="app-shell">
+    <div className="flex min-h-screen">
       <Sidebar
         canReadProducts={has(productPermissions.read)}
         canReadUsers={has(userPermissions.read)}
         canReadRoles={has(rolePermissions.read)}
       />
-      <div className="app-main">
+      <div className="flex min-w-0 flex-1 flex-col">
         <Header user={user} />
-        <main className="app-content">{children}</main>
+        <main className="px-8 py-7">{children}</main>
       </div>
     </div>
   );

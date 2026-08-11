@@ -1,8 +1,10 @@
 "use client";
 
 // Header - breadcrumb, current user, doi theme, dang xuat.
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import { logout } from "@/app/login/actions";
+import { Button } from "@/components/ui/button";
 import type { CurrentUser } from "@/lib/session";
 import { Breadcrumb } from "./breadcrumb";
 
@@ -24,20 +26,26 @@ export function Header({ user }: { user: CurrentUser }) {
   const { theme, toggle } = useTheme();
 
   return (
-    <header className="header">
+    <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-surface px-8 py-3.5">
       <Breadcrumb />
-      <div className="header-user">
-        <button type="button" className="theme-toggle" onClick={toggle} title="Doi giao dien">
-          {theme === "dark" ? "☀" : "☾"}
-        </button>
+      <div className="flex items-center gap-3 text-[13.5px] text-muted-foreground">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="size-8.5 rounded-full"
+          onClick={toggle}
+          title="Doi giao dien"
+        >
+          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+        </Button>
         <span>
           {user.name}
           {user.roles.length ? ` (${user.roles.map((r) => r.role.name).join(", ")})` : ""}
         </span>
-        {/* type="button" chu khong phai submit: CSS to mau primary cho submit. */}
-        <button type="button" onClick={() => void logout()}>
+        <Button type="button" variant="outline" size="sm" onClick={() => void logout()}>
           Dang xuat
-        </button>
+        </Button>
       </div>
     </header>
   );

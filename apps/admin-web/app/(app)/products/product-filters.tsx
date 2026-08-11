@@ -5,23 +5,29 @@
 // giu nguyen trang thai vi trang thai nam trong URL).
 // "use client" chi de auto-submit khi doi select/ngay; o tim kiem submit bang Enter.
 import type { ChangeEvent } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import type { ProductFilter } from "./schema";
 
 const submitForm = (e: ChangeEvent<HTMLElement>) =>
   (e.currentTarget as HTMLElement & { form: HTMLFormElement | null }).form?.requestSubmit();
 
+const fieldLabel = "gap-1.5 text-[13px] whitespace-nowrap text-muted-foreground";
+
 export function ProductFilters({ filter }: { filter: ProductFilter }) {
   return (
-    <form className="filter-panel" action="/products">
-      <input
-        className="search-input"
+    <form className="mb-4.5 flex flex-wrap items-center gap-2.5" action="/products">
+      <Input
+        className="w-auto min-w-60"
         type="search"
         name="search"
         defaultValue={filter.search ?? ""}
         placeholder="Tim theo ten roi Enter"
         aria-label="Tim theo ten"
       />
-      <select
+      <NativeSelect
+        className="w-auto"
         name="status"
         defaultValue={filter.status ?? ""}
         onChange={submitForm}
@@ -30,27 +36,29 @@ export function ProductFilters({ filter }: { filter: ProductFilter }) {
         <option value="">Tat ca trang thai</option>
         <option value="active">active</option>
         <option value="inactive">inactive</option>
-      </select>
-      <label className="filter-field">
+      </NativeSelect>
+      <Label className={fieldLabel}>
         Tu ngay
-        <input
+        <Input
+          className="w-auto"
           type="date"
           name="createdFrom"
           defaultValue={filter.createdFrom ?? ""}
           max={filter.createdTo || undefined}
           onChange={submitForm}
         />
-      </label>
-      <label className="filter-field">
+      </Label>
+      <Label className={fieldLabel}>
         Den ngay
-        <input
+        <Input
+          className="w-auto"
           type="date"
           name="createdTo"
           defaultValue={filter.createdTo ?? ""}
           min={filter.createdFrom || undefined}
           onChange={submitForm}
         />
-      </label>
+      </Label>
     </form>
   );
 }

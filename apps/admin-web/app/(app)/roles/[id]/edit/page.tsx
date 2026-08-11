@@ -1,3 +1,4 @@
+import { FormError } from "@/components/form-error";
 import { PageHeader } from "@/components/page-header";
 import { getRole, listPermissions } from "../../api";
 import { RoleForm } from "../../role-form";
@@ -13,11 +14,7 @@ export default async function RoleEditPage({
   try {
     role = await getRole(id);
   } catch (error) {
-    return (
-      <p className="form-error">
-        {error instanceof Error ? error.message : "Khong tim thay"}
-      </p>
-    );
+    return <FormError>{error instanceof Error ? error.message : "Khong tim thay"}</FormError>;
   }
 
   const permissions = await listPermissions();

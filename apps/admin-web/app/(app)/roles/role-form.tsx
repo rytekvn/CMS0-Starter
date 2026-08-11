@@ -4,15 +4,19 @@
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { FormError } from "@/components/form-error";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { saveRole } from "./actions";
 import type { Permission, RoleFormValues } from "./schema";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       {pending ? "Dang luu..." : "Luu"}
-    </button>
+    </Button>
   );
 }
 
@@ -33,31 +37,38 @@ export function RoleForm({
   const values = state?.values ?? defaultValues;
 
   return (
-    <form className="entity-form entity-form-wide" action={formAction}>
-      {state && <p className="form-error">{state.error}</p>}
-      <label>
-        Ten role
-        <input name="name" defaultValue={values.name} required autoFocus />
-      </label>
-      <fieldset className="checkbox-list">
-        <legend>Quyen</legend>
-        {permissions.length === 0 && <span className="field-hint">Khong co quyen nao</span>}
+    <form className="flex max-w-[640px] flex-col gap-3.5" action={formAction}>
+      {state && <FormError>{state.error}</FormError>}
+      <div className="grid gap-1.5">
+        <Label htmlFor="name">Ten role</Label>
+        <Input id="name" name="name" defaultValue={values.name} required autoFocus />
+      </div>
+      <fieldset className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-x-4 gap-y-2 rounded-md border border-border bg-surface px-4 py-3.5">
+        <legend className="px-1.5 text-[13px] font-semibold text-muted-foreground">Quyen</legend>
+        {permissions.length === 0 && (
+          <span className="text-[13px] text-muted-foreground">Khong co quyen nao</span>
+        )}
         {permissions.map((permission) => (
-          <label key={permission.id}>
+          // Checkbox native: server action doc bang formData.getAll("permissionKeys").
+          <label
+            key={permission.id}
+            className="flex items-center gap-2 text-[13px] text-foreground"
+          >
             <input
               type="checkbox"
               name="permissionKeys"
               value={permission.key}
               defaultChecked={values.permissionKeys.includes(permission.key)}
+              className="size-4 cursor-pointer accent-primary"
             />
             {permission.key}
           </label>
         ))}
       </fieldset>
-      <div className="form-actions">
-        <button type="button" onClick={() => router.push(cancelHref)}>
+      <div className="mt-1 flex gap-2">
+        <Button type="button" variant="outline" onClick={() => router.push(cancelHref)}>
           Huy
-        </button>
+        </Button>
         <SubmitButton />
       </div>
     </form>

@@ -19,7 +19,7 @@ async function readApiHealth(): Promise<Health> {
 function Row({ label, value, ok }: { label: string; value: string; ok: boolean }) {
   return (
     <tr>
-      <td style={{ padding: "8px 16px 8px 0", color: "var(--text-muted)" }}>{label}</td>
+      <td style={{ padding: "8px 16px 8px 0", color: "var(--muted-foreground)" }}>{label}</td>
       <td style={{ padding: "8px 0", color: ok ? "var(--success)" : "var(--danger)" }}>{value}</td>
     </tr>
   );
@@ -31,16 +31,16 @@ export default async function Page() {
   return (
     <main style={{ maxWidth: 480, margin: "64px auto", padding: "0 16px" }}>
       <h1 style={{ fontSize: 20, marginBottom: 4 }}>Rytek Admin</h1>
-      <p style={{ color: "var(--text-muted)", marginTop: 0 }}>
+      <p style={{ color: "var(--muted-foreground)", marginTop: 0 }}>
         Skeleton v0.3 &mdash; Next.js :3000 &rarr; NestJS :4000 &rarr; Postgres
       </p>
 
       <table
         style={{
           borderCollapse: "collapse",
-          background: "var(--bg-card)",
-          borderRadius: "var(--radius)",
-          boxShadow: "var(--shadow-card)",
+          background: "var(--surface)",
+          borderRadius: "var(--radius-md)",
+          boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
           padding: 16,
           width: "100%",
         }}

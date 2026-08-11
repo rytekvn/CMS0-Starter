@@ -32,7 +32,9 @@ export default async function ProductsPage({
   // Vao thang URL ma khong co quyen: backend cung chan (403), o day chan som de
   // hien thong bao ro rang thay vi mot trang loi.
   if (!user.permissions.includes(productPermissions.read))
-    return <p className="empty-state">Ban khong co quyen xem danh sach product.</p>;
+    return (
+      <p className="py-6 text-muted-foreground">Ban khong co quyen xem danh sach product.</p>
+    );
 
   const products = await listProducts(filter);
 

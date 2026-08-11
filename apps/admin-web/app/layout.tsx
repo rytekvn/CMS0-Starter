@@ -14,7 +14,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="vi">
-      <body>{children}</body>
+      <body className="bg-background font-sans text-[14px]/[1.55] text-foreground transition-colors duration-200">
+        {children}
+      </body>
     </html>
   );
 }

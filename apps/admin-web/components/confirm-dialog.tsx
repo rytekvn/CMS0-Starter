@@ -1,6 +1,19 @@
 "use client";
 
-// Dialog xac nhan hanh dong (vd xoa).
+// Dialog xac nhan hanh dong (vd xoa). Ruot la Radix AlertDialog (focus trap,
+// Escape, role="alertdialog"); API giu nguyen nen call site khong doi.
+import { useRef } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 export function ConfirmDialog({
   open,
   message,
@@ -12,20 +25,40 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
-  if (!open) return null;
+  // Radix dong dialog sau khi bam Xac nhan -> onOpenChange(false) cung chay.
+  // Co ref nay de onCancel chi bao "nguoi dung huy", khong bao ca luot confirm.
+  const confirmed = useRef(false);
+
   return (
-    <div className="confirm-backdrop" onClick={onCancel}>
-      <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
-        <p>{message}</p>
-        <div className="confirm-actions">
-          <button type="button" onClick={onCancel}>
-            Huy
-          </button>
-          <button type="button" className="danger" onClick={onConfirm}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(next) => {
+        if (next) return;
+        if (confirmed.current) {
+          confirmed.current = false;
+          return;
+        }
+        onCancel();
+      }}
+    >
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Xac nhan</AlertDialogTitle>
+          <AlertDialogDescription>{message}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Huy</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={() => {
+              confirmed.current = true;
+              onConfirm();
+            }}
+          >
             Xac nhan
-          </button>
-        </div>
-      </div>
-    </div>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

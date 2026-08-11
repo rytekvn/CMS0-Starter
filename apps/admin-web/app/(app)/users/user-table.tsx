@@ -2,11 +2,14 @@
 
 // Dao Client duy nhat cua trang danh sach: xac nhan xoa.
 // Du lieu va quyen do Server Component truyen xuong; lenh ghi goi Server Action.
+import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { DataTable, type Column } from "@/components/data-table";
+import { DataTable } from "@/components/data-table";
+import { FormError } from "@/components/form-error";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { removeUser } from "./actions";
 import type { User } from "./schema";
 
@@ -21,38 +24,55 @@ export function UserTable({
   const [error, setError] = useState("");
   const [, startTransition] = useTransition();
 
-  const columns: Column<User>[] = [
+  const columns: ColumnDef<User>[] = [
     {
-      key: "name",
+      id: "name",
       header: "Ten",
-      render: (u) => <Link href={`/users/${u.id}`}>{u.name}</Link>,
+      cell: ({ row }) => (
+        <Link href={`/users/${row.original.id}`} className="text-primary hover:underline">
+          {row.original.name}
+        </Link>
+      ),
     },
-    { key: "email", header: "Email" },
+    { accessorKey: "email", header: "Email" },
     {
-      key: "roles",
+      id: "roles",
       header: "Role",
-      render: (u) => u.roles.map((r) => r.role.name).join(", ") || "-",
+      cell: ({ row }) => row.original.roles.map((r) => r.role.name).join(", ") || "-",
     },
     {
-      key: "createdAt",
+      id: "createdAt",
       header: "Ngay tao",
-      render: (u) => (
+      cell: ({ row }) => (
         // suppressHydrationWarning: server va browser co the khac timezone.
         <span suppressHydrationWarning>
-          {new Date(u.createdAt).toLocaleDateString("vi-VN")}
+          {new Date(row.original.createdAt).toLocaleDateString("vi-VN")}
         </span>
       ),
     },
     {
-      key: "actions",
+      id: "actions",
       header: "",
-      render: (u) => (
-        <span className="row-actions">
-          {can.update && <Link href={`/users/${u.id}/edit`}>Sua</Link>}
+      cell: ({ row }) => (
+        <span className="flex items-center gap-3">
+          {can.update && (
+            <Link
+              href={`/users/${row.original.id}/edit`}
+              className="text-primary hover:underline"
+            >
+              Sua
+            </Link>
+          )}
           {can.delete && (
-            <button type="button" className="link danger" onClick={() => setToDelete(u)}>
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="h-auto p-0 text-danger"
+              onClick={() => setToDelete(row.original)}
+            >
               Xoa
-            </button>
+            </Button>
           )}
         </span>
       ),
@@ -65,14 +85,14 @@ export function UserTable({
         title="Users"
         actions={
           can.create && (
-            <Link className="button" href="/users/new">
-              + Them moi
-            </Link>
+            <Button asChild>
+              <Link href="/users/new">+ Them moi</Link>
+            </Button>
           )
         }
       />
 
-      {error && <p className="form-error">{error}</p>}
+      {error && <FormError>{error}</FormError>}
 
       <DataTable columns={columns} rows={rows} empty="Chua co user nao" />
 
