@@ -12,6 +12,14 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { AnyFilesInterceptor } from "@nestjs/platform-express";
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import type { FileAsset } from "@prisma/client";
 import {
   CurrentUser,
@@ -41,6 +49,8 @@ type UploadedAsset = {
 
 @Controller("files")
 @UseGuards(JwtAuthGuard, PermissionsGuard)
+@ApiTags("files")
+@ApiBearerAuth()
 export class FileController {
   constructor(private readonly files: FileService) {}
 
@@ -51,6 +61,17 @@ export class FileController {
   @Post()
   @RequirePermission("file.upload")
   @UseInterceptors(AnyFilesInterceptor({ defParamCharset: "utf8" }))
+  @ApiOperation({
+    summary: "Upload file",
+    description:
+      "Requires permission `file.upload`. Multipart voi field ten `file`. Chi nhan png/jpeg/gif/webp/pdf/csv, toi da 5MB.",
+  })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: { type: "object", properties: { file: { type: "string", format: "binary" } } },
+  })
+  @ApiResponse({ status: 201, description: "FileAsset vua tao." })
+  @ApiResponse({ status: 400, description: "Thieu field `file`, sai loai file, hoac qua 5MB." })
   upload(
     @UploadedFiles() files: UploadedAsset[] | undefined,
     @CurrentUser() user: AuthUser
@@ -70,6 +91,17 @@ export class FileController {
   // thi Nest van chay duoc interceptor/filter nhu cac route khac.
   @Get(":id")
   @RequirePermission("file.read")
+  @ApiOperation({
+    summary: "Download file",
+    description: "Requires permission `file.read`. Tra byte goc, `Content-Type` theo mime da luu.",
+  })
+  // Khai content-type cu the: day khong phai JSON nhu cac endpoint con lai.
+  @ApiResponse({
+    status: 200,
+    description: "Noi dung file (attachment).",
+    content: { "application/octet-stream": { schema: { type: "string", format: "binary" } } },
+  })
+  @ApiResponse({ status: 404, description: "Khong co ban ghi, hoac ban ghi con nhung file mat tren disk." })
   async download(@Param("id") id: string): Promise<StreamableFile> {
     const asset = await this.files.get(id);
     if (!asset) throw new NotFoundException({ error: "Not found" });

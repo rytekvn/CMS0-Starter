@@ -18,6 +18,14 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { AnyFilesInterceptor } from "@nestjs/platform-express";
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import type { Product } from "@prisma/client";
 import type { z } from "zod";
 import {
@@ -27,6 +35,7 @@ import {
   RequirePermission,
 } from "../../common/auth/auth.guards";
 import type { AuthUser } from "../../common/auth/auth.types";
+import { ApiZodBody, ApiZodQuery } from "../../common/swagger";
 import { ZodValidationPipe } from "../../common/zod-validation.pipe";
 import {
   bulkActionSchema,
@@ -52,11 +61,19 @@ type UploadedCsv = { fieldname: string; size: number; buffer: Buffer };
 
 @Controller("products")
 @UseGuards(JwtAuthGuard, PermissionsGuard)
+@ApiTags("products")
+@ApiBearerAuth()
 export class ProductController {
   constructor(private readonly products: ProductService) {}
 
   @Get()
   @RequirePermission("product.read")
+  @ApiOperation({
+    summary: "List products",
+    description: "Requires permission `product.read`. Khong truyen tham so = khong loc.",
+  })
+  @ApiZodQuery(productQuerySchema)
+  @ApiResponse({ status: 200, description: "Danh sach product chua bi xoa mem." })
   list(@Query(QueryPipe) filter: ProductFilter): Promise<Product[]> {
     return this.products.list(filter);
   }
@@ -66,6 +83,16 @@ export class ProductController {
   @RequirePermission("product.export")
   @Header("Content-Type", "text/csv; charset=utf-8")
   @Header("Content-Disposition", 'attachment; filename="products.csv"')
+  @ApiOperation({
+    summary: "Export products to CSV",
+    description: "Requires permission `product.export`. Nhan cung bo filter voi `GET /products`.",
+  })
+  @ApiZodQuery(productQuerySchema)
+  @ApiResponse({
+    status: 200,
+    description: "File CSV (`text/csv; charset=utf-8`), tai ve ten `products.csv`.",
+    content: { "text/csv": { schema: { type: "string" } } },
+  })
   exportCsv(@Query(QueryPipe) filter: ProductFilter): Promise<string> {
     return this.products.exportCsv(filter);
   }
@@ -77,6 +104,18 @@ export class ProductController {
   @HttpCode(200)
   @RequirePermission("product.import")
   @UseInterceptors(AnyFilesInterceptor())
+  @ApiOperation({
+    summary: "Import products from CSV",
+    description: "Requires permission `product.import`. Gui multipart voi field ten `file` (toi da 5MB).",
+  })
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: { type: "object", properties: { file: { type: "string", format: "binary" } } },
+  })
+  // 200 chu khong 201: handler co @HttpCode(200).
+  @ApiResponse({ status: 200, description: "So dong da tao va danh sach dong loi." })
+  @ApiResponse({ status: 400, description: "Thieu field `file`." })
+  @ApiResponse({ status: 413, description: "File lon hon 5MB." })
   importCsv(
     @UploadedFiles() files: UploadedCsv[] | undefined,
     @CurrentUser() user: AuthUser
@@ -91,6 +130,13 @@ export class ProductController {
   @Post("bulk")
   @HttpCode(200)
   @RequirePermission("product.bulk")
+  @ApiOperation({
+    summary: "Bulk delete / activate / deactivate",
+    description: "Requires permission `product.bulk`. Toi da 500 id moi lan.",
+  })
+  @ApiZodBody(bulkActionSchema)
+  // 200 chu khong 201: handler co @HttpCode(200).
+  @ApiResponse({ status: 200, description: "So ban ghi bi tac dong." })
   bulk(
     @Body(BulkPipe) body: z.infer<typeof bulkActionSchema>,
     @CurrentUser() user: AuthUser
@@ -100,6 +146,9 @@ export class ProductController {
 
   @Get(":id")
   @RequirePermission("product.read")
+  @ApiOperation({ summary: "Get one product", description: "Requires permission `product.read`." })
+  @ApiResponse({ status: 200, description: "Product." })
+  @ApiResponse({ status: 404, description: "Khong ton tai hoac da xoa mem." })
   async get(@Param("id") id: string): Promise<Product> {
     const product = await this.products.get(id);
     if (!product) throw new NotFoundException({ error: "Not found" });
@@ -108,6 +157,9 @@ export class ProductController {
 
   @Post()
   @RequirePermission("product.create")
+  @ApiOperation({ summary: "Create product", description: "Requires permission `product.create`." })
+  @ApiZodBody(createProductSchema)
+  @ApiResponse({ status: 201, description: "Product vua tao." })
   create(
     @Body(CreatePipe) data: z.infer<typeof createProductSchema>,
     @CurrentUser() user: AuthUser
@@ -117,6 +169,10 @@ export class ProductController {
 
   @Patch(":id")
   @RequirePermission("product.update")
+  @ApiOperation({ summary: "Update product", description: "Requires permission `product.update`." })
+  @ApiZodBody(updateProductSchema)
+  @ApiResponse({ status: 200, description: "Product sau khi sua." })
+  @ApiResponse({ status: 404, description: "Khong ton tai hoac da xoa mem." })
   update(
     @Param("id") id: string,
     @Body(UpdatePipe) data: z.infer<typeof updateProductSchema>,
@@ -127,6 +183,12 @@ export class ProductController {
 
   @Delete(":id")
   @RequirePermission("product.delete")
+  @ApiOperation({
+    summary: "Soft delete product",
+    description: "Requires permission `product.delete`. Set `deletedAt`, khong xoa cung.",
+  })
+  @ApiResponse({ status: 200, description: "`{ ok: true }`." })
+  @ApiResponse({ status: 404, description: "Khong ton tai hoac da xoa mem." })
   async remove(
     @Param("id") id: string,
     @CurrentUser() user: AuthUser
