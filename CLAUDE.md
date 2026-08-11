@@ -79,8 +79,10 @@ pnpm dev:web                     # Next.js :3000
 ## UI Rules
 
 - Dung **semantic token** trong `apps/admin-web/app/globals.css`
-  (`var(--primary)`, `var(--text-muted)`, ...). **Khong hard-code ma mau.**
-- Tailwind + shadcn/ui hoan sang v0.4 — chua cai, dung tu them.
+  (`var(--primary)`, `var(--muted-foreground)`, ...). **Khong hard-code ma mau.**
+- **Tailwind v4 + shadcn/ui + TanStack Table da cai (v0.5).** Component dung chung
+  la shadcn primitive (`components/ui/*`), khong tu ve component moi neu shadcn
+  da co san.
 - Trang danh sach/chi tiet phai co du state: **loading, empty, error, no-permission**.
 - Tai su dung component da co; khong tao wrapper chi de doi ten.
 - Module frontend (`apps/admin-web`, Next.js App Router): vi tri file do
@@ -156,7 +158,9 @@ Danh so theo repo nay (khac voi danh so cua roadmap platform).
 - **v0.4 — Backend Starter. DONE.** Product, auth (login/me), user, role,
   file da migrate sang `apps/api` + `apps/admin-web`; `apps/admin-web` khong con goi
   `api-legacy` (bien `LEGACY_API_URL` da bo).
-- **v0.4.5 — Backend Hardening.** OpenAPI, Redis cache, BullMQ, idempotency.
+- **v0.4.5 — Backend Hardening.** OpenAPI/Swagger da xong (`/docs`, `/docs-json`,
+  Zod schema sinh doc qua `zod-to-json-schema`, khong DTO class). Con lai: Redis
+  cache, BullMQ, idempotency — chua co use case cu the, chua lam.
 - **v0.5 — Integrated. DONE.** Next.js admin da thay the `admin-web-legacy`:
   Tailwind + shadcn/ui, TanStack Table, permission-aware navigation.
   `apps/api-legacy` + `apps/admin-web-legacy` da bi xoa khoi repo; seed script
