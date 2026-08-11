@@ -6,8 +6,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { TOKEN_COOKIE } from "@/lib/session";
 
-const LEGACY_API_URL = process.env.LEGACY_API_URL ?? "http://localhost:3001";
-const SEVEN_DAYS = 60 * 60 * 24 * 7; // khop expiresIn cua JWT ben api-legacy
+const API_URL = process.env.API_URL ?? "http://localhost:4000";
+const SEVEN_DAYS = 60 * 60 * 24 * 7; // khop expiresIn cua JWT ben apps/api
 
 // Tra ca `email` ve: React 19 reset form uncontrolled sau moi action, khong tra
 // lai thi go sai mat khau mot lan la mat luon email da nhap.
@@ -16,7 +16,7 @@ export type LoginState = { error: string; email: string } | undefined;
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const email = String(formData.get("email") ?? "");
 
-  const res = await fetch(`${LEGACY_API_URL}/auth/login`, {
+  const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

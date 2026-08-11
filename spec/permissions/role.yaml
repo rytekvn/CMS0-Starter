@@ -1,0 +1,35 @@
+# Map 1:1 tu apps/api-legacy/src/seed.ts (PERMISSION_KEYS + ROLE_PERMISSIONS).
+# Quyen luu trong DB (Role -> Permission), khong hard-code trong code.
+entity: Role
+
+permissions:
+  role.read:   Xem danh sach/chi tiet role va danh sach permission co the gan
+  role.create: Tao role moi (kem gan permission)
+  role.update: Sua role (doi ten, gan lai permission)
+  role.delete: Xoa mem role (set deletedAt)
+
+# x = co quyen. 4 role mac dinh do seed tao ra.
+# Chi super_admin duoc sua he thong phan quyen; admin chi doc
+# (seed: admin = PERMISSION_KEYS.filter(k => !k.startsWith("role.") || k === "role.read")).
+matrix:
+  super_admin: [role.read, role.create, role.update, role.delete]
+  admin:       [role.read]
+  staff:       [role.read]
+  viewer:      [role.read]
+
+enforcement:
+  backend:
+    - Moi route /roles deu qua `requireAuth` / `JwtAuthGuard` truoc (401 neu thieu/sai token).
+    - Moi route kiem tra bang `@RequirePermission("<key>")` -> 403 neu khong du quyen.
+    - GET /roles/permissions dung quyen `role.read` (chi doc du lieu tham chieu).
+  frontend:
+    - Sidebar chi hien muc Roles khi co `role.read`; vao thang URL /roles ma
+      thieu quyen -> khoi no-permission.
+    - Form User goi GET /roles de do multi-select; thieu `role.read` thi danh
+      sach role rong nhung form van luu duoc (khong chan).
+
+notes:
+  - Xoa mem mot role dang duoc gan cho user KHONG bi chan (parity voi legacy).
+    Hieu qua: user do mat cac quyen den tu role vua xoa ngay o request ke tiep,
+    row UserRole van con nhung `can()` loc `role.deletedAt === null`.
+  - Permission (17 key) do seed so huu, khong sua/xoa qua API.

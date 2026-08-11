@@ -65,7 +65,7 @@
 }
 
 /* Component styles port tu apps/admin-web-legacy/src/styles.css (dong 68-357).
-   Bo .file-uploader* (ngoai scope) va .stat-card* (chua co dashboard). */
+   Bo .stat-card* (chua co dashboard). */
 
 * { box-sizing: border-box; }
 body {
@@ -250,6 +250,11 @@ input:focus, select:focus {
 .import-result p { display: flex; gap: 10px; align-items: center; margin: 0; }
 .import-result ul { margin: 10px 0 0; padding-left: 18px; color: var(--danger); }
 
+/* ============ FILE UPLOADER ============ */
+.file-uploader { display: flex; flex-direction: column; gap: 8px; }
+.file-uploader-result { display: flex; align-items: center; gap: 10px; margin: 0; }
+.file-uploader-hint { color: var(--text-muted); font-size: 12px; }
+
 /* ============ TABLE ============ */
 .data-table {
   width: 100%;
@@ -327,6 +332,45 @@ input:focus, select:focus {
   color: var(--text-muted);
 }
 .form-actions { display: flex; gap: 8px; margin-top: 4px; }
+.field-hint { font-weight: 400; color: var(--text-light); }
+/* Form co checkbox list (vd gan quyen cho role) can rong hon 380px mac dinh. */
+.entity-form-wide { max-width: 640px; }
+
+/* ============ CHECKBOX LIST ============ */
+.checkbox-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px 16px;
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.checkbox-list legend {
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.checkbox-list label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+}
+/* Reset lai rule `input` chung (padding/border/radius) cho checkbox. */
+.checkbox-list input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
 
 /* ============ CONFIRM DIALOG ============ */
 .confirm-backdrop {

@@ -1,0 +1,38 @@
+# Map 1:1 tu apps/api-legacy/src/seed.ts (PERMISSION_KEYS + ROLE_PERMISSIONS).
+# Quyen luu trong DB (Role -> Permission), khong hard-code trong code.
+entity: User
+
+permissions:
+  user.read:   Xem danh sach va chi tiet user
+  user.create: Tao user moi (kem gan role)
+  user.update: Sua user (doi ten/email/mat khau, gan lai role)
+  user.delete: Xoa mem user (set deletedAt)
+
+# x = co quyen. 4 role mac dinh do seed tao ra.
+matrix:
+  super_admin: [user.read, user.create, user.update, user.delete]
+  admin:       [user.read, user.create, user.update, user.delete]
+  # staff chi xem duoc danh sach user, khong quan tri tai khoan.
+  staff:       [user.read]
+  viewer:      [user.read]
+
+enforcement:
+  backend:
+    - Moi route /users deu qua `requireAuth` / `JwtAuthGuard` truoc (401 neu thieu/sai token).
+    - Moi route kiem tra bang `requirePermission("<key>")` / `@RequirePermission("<key>")`
+      -> 403 neu khong du quyen.
+    - Role da soft delete (deletedAt != null) khong con cap quyen
+      (apps/api/src/common/auth/can.ts).
+  frontend:
+    - Sidebar chi hien muc Users khi co `user.read`; vao thang URL /users ma
+      thieu quyen -> khoi no-permission (apps/admin-web/app/(app)/users/page.tsx).
+    - Nut Them moi / Sua / Xoa an theo `user.create|update|delete`.
+    - An o frontend chi la UX; backend van la cho quyet dinh.
+
+notes:
+  # Hanh vi hien tai, giu parity voi legacy - siet chat hon can quyet dinh rieng.
+  - Doi mat khau KHONG can nhap mat khau hien tai.
+  - User co `user.delete` co the tu xoa chinh minh (khong bi chan).
+  - User co `user.update` co the tu bo het role cua minh (mat quyen ngay sau do).
+  - `/auth/login` va `/auth/me` khong doi hoi permission key nao
+    (login la public, me chi can token hop le).

@@ -1,10 +1,12 @@
 // Phien dang nhap: token nam trong cookie httpOnly, chi server doc duoc.
-// User + permissions lay tu GET /auth/me cua api-legacy (dang so huu auth).
+// User + permissions lay tu GET /auth/me cua apps/api (NestJS).
+// Tu goi fetch chu khong dung lib/api.ts: lib/api.ts import getToken tu file nay,
+// dung nguoc lai se thanh vong import.
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
-const LEGACY_API_URL = process.env.LEGACY_API_URL ?? "http://localhost:3001";
+const API_URL = process.env.API_URL ?? "http://localhost:4000";
 
 export const TOKEN_COOKIE = "token";
 
@@ -25,7 +27,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const token = await getToken();
   if (!token) return null;
 
-  const res = await fetch(`${LEGACY_API_URL}/auth/me`, {
+  const res = await fetch(`${API_URL}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
     cache: "no-store",
   });

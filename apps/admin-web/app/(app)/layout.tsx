@@ -5,13 +5,20 @@ import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
 import { requireUser } from "@/lib/session";
 import { productPermissions } from "./products/permissions";
+import { rolePermissions } from "./roles/permissions";
+import { userPermissions } from "./users/permissions";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const user = await requireUser();
+  const has = (key: string) => user.permissions.includes(key);
 
   return (
     <div className="app-shell">
-      <Sidebar canReadProducts={user.permissions.includes(productPermissions.read)} />
+      <Sidebar
+        canReadProducts={has(productPermissions.read)}
+        canReadUsers={has(userPermissions.read)}
+        canReadRoles={has(rolePermissions.read)}
+      />
       <div className="app-main">
         <Header user={user} />
         <main className="app-content">{children}</main>

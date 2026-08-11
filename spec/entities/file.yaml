@@ -1,0 +1,87 @@
+# Map 1:1 tu code dang chay, khong them field nao chua ton tai:
+#   - prisma/schema.prisma                            -> model FileAsset
+#   - apps/api-legacy/src/schemas/file.schema.ts      -> validation
+#   - apps/api-legacy/src/services/file.service.ts    -> audit event
+entity: FileAsset
+description: >
+  File nguoi dung tai len. KHONG co quan he voi entity nao khac trong
+  prisma/schema.prisma (khong foreign key, khong bang trung gian): module can dinh
+  kem file thi tu luu FileAsset.id o phia minh. Khong co CRUD day du - chi upload
+  va download.
+
+fields:
+  id:
+    type: string
+    generated: true
+    format: cuid
+  url:
+    type: string
+    generated: true
+    description: >
+      Duong dan disk tuong doi "/uploads/<uuid>.<ext>". Ten tren disk la
+      randomUUID + duoi lay TU BANG mimeType -> ext, khong bao gio lay tu ten file
+      cua user (chan path traversal). Client khong tai bang duong dan nay ma qua
+      GET /files/:id.
+  filename:
+    type: string
+    required: true
+    minLength: 1
+    maxLength: 255
+    description: Ten goc do browser gui, chi luu trong DB. Giu nguyen unicode.
+  mimeType:
+    type: string
+    required: true
+    description: >
+      Phai thuoc whitelist EXT_BY_MIME (image/png, image/jpeg, image/gif,
+      image/webp, application/pdf, text/csv). Phan sau dau ";" (charset) bi cat
+      va chuoi duoc lowercase truoc khi so khop. So khop bang Object.hasOwn
+      chu khong `in`: `in` cho "constructor"/"toString" lot qua prototype chain.
+  size:
+    type: int
+    required: true
+    min: 1
+    max: 5242880
+    description: 5 MB. Vuot nguong la loi VALIDATE (400), khong phai 413.
+  createdAt:
+    type: datetime
+    generated: true
+  updatedAt:
+    type: datetime
+    generated: true
+  createdBy:
+    type: string
+    required: false
+  updatedBy:
+    type: string
+    required: false
+  deletedAt:
+    type: datetime
+    required: false
+    description: >
+      Soft delete. GET /files/:id loc deletedAt = null. Chua co endpoint nao set
+      deletedAt (khong co DELETE /files/:id) - cot ton tai de dong bo convention.
+
+relations: []
+# Co y de rong: FileAsset khong tham chieu va khong bi tham chieu boi model nao.
+
+indexes: []
+
+softDelete: true
+# Khong co endpoint list -> khong co defaultOrder.
+
+permissions:
+  - file.upload
+  - file.read
+
+audit:
+  events:
+    - file.upload   # entityId = FileAsset.id, metadata: { filename, size }
+    # Khong co audit cho doc file: GET khong doi du lieu.
+
+storage:
+  driver: local disk
+  dir: apps/api/uploads/ (apps/api-legacy/uploads/ o stack legacy)
+  gitignored: apps/*/uploads/
+  notes: >
+    File duoc doc ca vao RAM khi upload va khi download (tran 5MB). Doi sang
+    S3 / stream that khi co nhu cau that - chua co.

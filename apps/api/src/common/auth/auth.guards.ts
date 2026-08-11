@@ -1,4 +1,6 @@
 // Auth guard mirror `requireAuth` + `requirePermission` cua legacy.
+// Token do ./jwt.ts ky va verify (1 noi so huu JWT_SECRET). Ca apps/api lan
+// apps/api-legacy deu ky token bang chung secret/payload nen dung lan nhau duoc.
 // ponytail: verify JWT bang jsonwebtoken truc tiep, khong Passport (1 dep thay vi 4);
 // query user moi request, chua cache - them khi do duoc la cham.
 import {
@@ -11,15 +13,10 @@ import {
   type CanActivate,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import jwt from "jsonwebtoken";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import { can } from "./can";
+import { verifyUserId } from "./jwt";
 import { userWithPermissions, type AuthUser } from "./auth.types";
-
-// Phai KHOP apps/api-legacy/.env - legacy con so huu /auth/login, lech secret
-// thi moi request deu 401 "Invalid token".
-const SECRET = process.env.JWT_SECRET ?? "";
-if (!SECRET) throw new Error("JWT_SECRET chua duoc set - xem .env.example");
 
 type RequestWithUser = {
   headers: Record<string, string | string[] | undefined>;
@@ -38,7 +35,7 @@ export class JwtAuthGuard implements CanActivate {
 
     let userId: string;
     try {
-      userId = (jwt.verify(token, SECRET) as { userId: string }).userId;
+      userId = verifyUserId(token);
     } catch {
       throw new UnauthorizedException({ error: "Invalid token" });
     }

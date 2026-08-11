@@ -28,6 +28,12 @@ export default async function ProductsPage({
   };
 
   const user = await requireUser();
+
+  // Vao thang URL ma khong co quyen: backend cung chan (403), o day chan som de
+  // hien thong bao ro rang thay vi mot trang loi.
+  if (!user.permissions.includes(productPermissions.read))
+    return <p className="empty-state">Ban khong co quyen xem danh sach product.</p>;
+
   const products = await listProducts(filter);
 
   // Endpoint chua ho tro phan trang (spec: Out of scope) -> cat o day.

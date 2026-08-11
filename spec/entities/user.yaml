@@ -1,0 +1,86 @@
+# Map 1:1 tu code dang chay, khong them field nao chua ton tai:
+#   - prisma/schema.prisma                            -> model User, model UserRole
+#   - apps/api-legacy/src/schemas/user.schema.ts      -> validation
+#   - apps/api-legacy/src/services/user.service.ts    -> audit event
+#   - apps/api-legacy/src/types.ts (userSelect)       -> shape response
+entity: User
+description: Tai khoan dang nhap + gan role (RBAC). Auth (login/me) dung chung entity nay.
+
+fields:
+  id:
+    type: string
+    generated: true
+    # Prisma @default(cuid()), khong phai uuid
+    format: cuid
+  email:
+    type: string
+    required: true
+    unique: true
+    format: email
+    # Unique o DB -> tao trung email tra 409 {"error":"Duplicate value"} (P2002).
+  password:
+    type: string
+    required: true
+    minLength: 6
+    writeOnly: true
+    # Luu duoi dang bcrypt hash (rounds = 10). KHONG BAO GIO co trong response:
+    # moi query doc deu di qua `userSelect` (khong chon cot password).
+  name:
+    type: string
+    required: true
+    minLength: 1
+  roleIds:
+    type: string[]
+    required: false
+    writeOnly: true
+    # Input-only: ghi vao bang noi UserRole. Response tra ra duoi dang `roles`.
+  roles:
+    type: object[]
+    readOnly: true
+    shape: "{ role: { id, name } }[]"
+    description: Chi gom UserRole co deletedAt = null
+  createdAt:
+    type: datetime
+    generated: true
+  updatedAt:
+    type: datetime
+    generated: true
+  createdBy:
+    type: string
+    required: false
+    description: User.id cua nguoi tao
+  updatedBy:
+    type: string
+    required: false
+    description: User.id cua nguoi sua gan nhat
+  deletedAt:
+    type: datetime
+    required: false
+    description: Soft delete. Moi query list/detail phai loc deletedAt = null
+
+indexes:
+  - email (unique)
+
+softDelete: true
+# LECH CO CHU DICH so voi apps/api-legacy: legacy `listUsers()` khong co ORDER BY
+# (thu tu do Postgres quyet dinh, khong on dinh). apps/api them
+# `orderBy: { createdAt: "desc" }` de phan trang o UI on dinh giua cac lan goi.
+defaultOrder: createdAt desc
+
+relations:
+  # Gan lai role = xoa cung row UserRole roi tao lai (bang noi, khong soft delete).
+  roles: UserRole -> Role (many-to-many qua bang noi UserRole, unique [userId, roleId])
+
+permissions:
+  - user.read
+  - user.create
+  - user.update
+  - user.delete
+
+audit:
+  # Chuoi `action` that duoc ghi vao AuditLog
+  events:
+    - user.create   # entityId = User.id, metadata: { email }
+    - user.update   # entityId = User.id, metadata: { fields }
+    - user.delete   # entityId = User.id, khong metadata
+  # LUU Y: POST /auth/login KHONG ghi AuditLog (giu parity voi legacy).

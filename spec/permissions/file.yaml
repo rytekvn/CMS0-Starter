@@ -1,0 +1,32 @@
+# Map 1:1 tu apps/api-legacy/src/seed.ts (PERMISSION_KEYS + ROLE_PERMISSIONS).
+# Quyen luu trong DB (Role -> Permission), khong hard-code trong code.
+entity: FileAsset
+
+permissions:
+  file.upload: Tai file len (POST /files)
+  file.read:   Tai file ve (GET /files/:id)
+
+# x = co quyen. 4 role mac dinh do seed tao ra.
+# viewer chi co cac key ket thuc bang ".read" (seed: PERMISSION_KEYS.filter(k => k.endsWith(".read"))).
+matrix:
+  super_admin: [file.upload, file.read]
+  admin:       [file.upload, file.read]
+  staff:       [file.upload, file.read]
+  viewer:      [file.read]
+
+enforcement:
+  backend:
+    - Ca 2 route /files deu qua `requireAuth` / `JwtAuthGuard` truoc (401 neu thieu/sai token).
+    - Moi route kiem tra bang `@RequirePermission("<key>")` -> 403 neu khong du quyen.
+  frontend:
+    - Component `apps/admin-web/components/file-uploader.tsx` KHONG tu kiem quyen —
+      parity voi `apps/admin-web-legacy/src/components/FileUploader.tsx`: caller
+      tu boc kiem tra "file.upload" neu can. Chua trang nao dung component nay.
+    - Route Handler `app/api/files/[id]` chi proxy; quyen do backend quyet dinh
+      (thieu quyen -> forward nguyen 403 JSON cua API).
+
+notes:
+  - Khong co quyen "file.delete": chua co endpoint xoa.
+  - Khong co endpoint list file -> khong ai liet ke duoc file cua nguoi khac,
+    nhung ai co `file.read` deu tai duoc BAT KY file nao neu biet id
+    (parity voi legacy, khong co owner check).

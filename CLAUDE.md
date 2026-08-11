@@ -9,10 +9,10 @@ PostgreSQL + Redis, phat trien theo Spec-Driven Development.
 Kien truc hien tai — **hai stack chay song song co chu dich**:
 
 ```
-apps/api             NestJS  :4000   skeleton moi (health, logging, PrismaService)
-apps/admin-web       Next.js :3000   skeleton moi (1 trang trang thai end-to-end)
-apps/api-legacy      Hono    :3001   dang chay that: auth, user, role, product, file
-apps/admin-web-legacy Vite   :5173   dang chay that: login, dashboard, module products
+apps/api             NestJS  :4000   dang chay that: auth (login/me), user, role, file (upload/download), Product (CRUD, filter, CSV export/import, bulk action)
+apps/admin-web       Next.js :3000   dang chay that: /login, /products, /users, /roles (list, new, detail, edit)
+apps/api-legacy      Hono    :3001   khong con module nghiep vu nao chua migrate - chi con de phuc vu admin-web-legacy
+apps/admin-web-legacy Vite   :5173   dang chay that: login, dashboard, module products (van goi api-legacy)
 prisma/              schema.prisma - single source of truth cho DB (dung chung)
 spec/                contract nghiep vu da duyet
 docs/                roadmap platform
@@ -20,7 +20,15 @@ packages/            (chua co package nao - tao khi co consumer that)
 ```
 
 `*-legacy` la **no ky thuat co han**: chi xoa khi module nghiep vu cuoi cung
-da migrate sang `apps/api` + `apps/admin-web`. Chua migrate nghiep vu nao.
+da migrate sang `apps/api` + `apps/admin-web`. **Da xong het** — product, auth,
+user, role, file deu da co o `apps/api`; `apps/api-legacy` khong con module
+nghiep vu nao chua migrate. Diem chan cuoi cung la frontend:
+`apps/admin-web-legacy` chua migrate them man hinh nao va van can `apps/api-legacy`
+de chay — hai stack van song song cho den v0.5.
+
+**Ca hai API deu ky JWT** bang chung `JWT_SECRET` va chung payload `{ userId }`
+tren chung mot bang `User`, nen token dung lan nhau duoc. Day khong phai nguon
+su that kep (chi 1 DB) va se bien mat khi xoa `apps/*-legacy`.
 
 Ly do va cac phuong an da loai: `spec/decisions/ADR-0001-nestjs-nextjs-pnpm-monorepo.md`.
 
@@ -33,7 +41,11 @@ Doc theo dung thu tu nay truoc khi code (roadmap §9.2):
    (`spec/entities/*.yaml`, `spec/permissions/*.yaml`, `spec/acceptance/*.feature.md`).
 3. `spec/decisions/` — ADR lien quan.
 4. `docs/rytek_platform_roadmap.md` — §5 tech stack, §8 spec, §9 AI workflow, §18 quyet dinh da chot.
-5. Module gan nhat da co + test cua no (mau: `apps/api-legacy/src/{routes,services,schemas}/product.*`).
+5. Module gan nhat da co + test cua no — module tham chieu chuan cho NestJS + Next.js:
+   `apps/api/src/modules/products/` (`product.controller.ts`, `product.service.ts`,
+   `product.schema.ts`, `product.schema.test.ts`) +
+   `apps/admin-web/app/(app)/products/` (`page.tsx`, `new/`, `[id]/`, `[id]/edit/`,
+   `schema.ts`, `api.ts`, `permissions.ts`, `actions.ts`).
 
 ## Commands
 
@@ -82,14 +94,26 @@ pnpm dev:legacy:web              # Vite    :5173
 - Tailwind + shadcn/ui hoan sang v0.4 — chua cai, dung tu them.
 - Trang danh sach/chi tiet phai co du state: **loading, empty, error, no-permission**.
 - Tai su dung component da co; khong tao wrapper chi de doi ten.
-- Module frontend legacy giu nguyen pattern cua
+- Module frontend legacy (chi ap dung cho `apps/admin-web-legacy`, dang giu
+  nguyen, khong migrate them) giu nguyen pattern cua
   `apps/admin-web-legacy/src/modules/products/`
   (`list.tsx`, `create.tsx`, `edit.tsx`, `detail.tsx`, `schema.ts`, `api.ts`, `permissions.ts`).
+- Module frontend moi (`apps/admin-web`, Next.js App Router): vi tri file do
+  URL route quyet dinh — `app/(app)/<entity>/{page.tsx, new/page.tsx, [id]/page.tsx,
+  [id]/edit/page.tsx}`. Van giu du cac file "quan tam" tuong duong module cu trong
+  cung thu muc: `schema.ts`, `api.ts`, `permissions.ts`, `actions.ts` (Server Actions
+  cho write), `<entity>-table.tsx` / `<entity>-form.tsx` / `<entity>-filters.tsx`
+  (Client Component cho phan tuong tac). Component dung chung nhieu entity
+  (DataTable, PageHeader, Pagination, StatusBadge, ConfirmDialog, Sidebar, Header,
+  Breadcrumb) nam o `apps/admin-web/components/`, khong lap lai trong tung module.
 
 ## Backend Rules
 
-- **Validation:** moi input tu ngoai vao phai qua schema (Zod o legacy,
-  DTO + ValidationPipe khi lam tren NestJS). Khong tin body/query.
+- **Validation:** moi input tu ngoai vao phai qua schema Zod + `ZodValidationPipe`
+  — dung chung cho ca legacy va `apps/api`, **khong dung class-validator/DTO**
+  (quyet dinh da chot: tranh 2 nguon su that validate lech nhau khi 2 stack chay
+  song song, xem `spec/decisions/ADR-0001-nestjs-nextjs-pnpm-monorepo.md`).
+  Khong tin body/query.
 - **Auth:** moi route can auth (tru `/auth/login`, `/health*`).
 - **Permission:** kiem tra bang key `"<entity>.<action>"` truoc moi hanh dong ghi;
   quyen den tu DB (Role -> Permission), khong hard-code trong code.
@@ -141,11 +165,13 @@ Danh so theo repo nay (khac voi danh so cua roadmap platform).
 
 - **v0.1 — DONE.** Login, Dashboard, User, Role, Permission, Audit Log, 1 CRUD mau.
 - **v0.2 — DONE.** Upload, Import/Export, Bulk Action, Advanced Filter.
-- **v0.3 — Foundations (dot hien tai).** pnpm monorepo, NestJS + Next.js skeleton,
+- **v0.3 — Foundations. DONE.** pnpm monorepo, NestJS + Next.js skeleton,
   Docker Compose (Postgres + Redis), health + structured log + request ID,
   `spec/` + ADR, CI lint/typecheck/test/build.
-- **v0.4 — Backend Starter.** Migrate auth/user/role/product sang NestJS:
-  guard, DTO, error contract, OpenAPI, Redis cache, BullMQ, idempotency.
+- **v0.4 — Backend Starter. DONE.** Product, auth (login/me), user, role,
+  file da migrate sang `apps/api` + `apps/admin-web`; `apps/admin-web` khong con goi
+  `api-legacy` (bien `LEGACY_API_URL` da bo).
+- **v0.4.5 — Backend Hardening.** OpenAPI, Redis cache, BullMQ, idempotency.
 - **v0.5 — Integrated.** Next.js admin thay the `admin-web-legacy`:
   Tailwind + shadcn/ui, TanStack Table, permission-aware navigation.
   Xoa `apps/*-legacy` khi module cuoi migrate xong.

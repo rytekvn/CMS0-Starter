@@ -1,0 +1,76 @@
+# Map 1:1 tu code dang chay, khong them field nao chua ton tai:
+#   - prisma/schema.prisma                            -> model Role, model Permission
+#   - apps/api-legacy/src/schemas/role.schema.ts      -> validation
+#   - apps/api-legacy/src/services/role.service.ts    -> audit event
+entity: Role
+description: Nhom quyen gan cho User. Quyen den tu DB (Role -> Permission), khong hard-code.
+
+fields:
+  id:
+    type: string
+    generated: true
+    format: cuid
+  name:
+    type: string
+    required: true
+    minLength: 1
+    unique: true
+    # Unique o DB -> tao trung ten tra 409 {"error":"Duplicate value"} (P2002).
+  permissionKeys:
+    type: string[]
+    required: false
+    writeOnly: true
+    # Input-only: gan quyen bang Permission.key ("product.create"), key la unique.
+    # PATCH dung `set` -> THAY THE toan bo danh sach, khong cong don.
+    # Key khong ton tai -> Prisma khong tim thay record de connect -> 404 (P2025).
+  permissions:
+    type: object[]
+    readOnly: true
+    shape: Permission[]
+    description: Chi gom Permission co deletedAt = null (include day du object)
+  createdAt:
+    type: datetime
+    generated: true
+  updatedAt:
+    type: datetime
+    generated: true
+  createdBy:
+    type: string
+    required: false
+  updatedBy:
+    type: string
+    required: false
+  deletedAt:
+    type: datetime
+    required: false
+    description: >
+      Soft delete. Role da soft delete khong con cap quyen cho user dang gan no
+      (can() loc ur.role.deletedAt === null) - hieu luc ngay o request ke tiep.
+
+indexes:
+  - name (unique)
+
+softDelete: true
+# LECH CO CHU DICH so voi apps/api-legacy (giong User): legacy khong co ORDER BY.
+defaultOrder: createdAt desc
+
+permissions:
+  - role.read
+  - role.create
+  - role.update
+  - role.delete
+
+audit:
+  events:
+    - role.create   # entityId = Role.id, metadata: { name }
+    - role.update   # entityId = Role.id, metadata: { fields }
+    - role.delete   # entityId = Role.id, khong metadata
+
+# Permission la du lieu tham chieu do seed so huu (17 key co dinh, xem
+# apps/api-legacy/src/seed.ts). KHONG co CRUD Permission: chi doc qua
+# GET /roles/permissions de form gan quyen co danh sach chon.
+referenceData:
+  Permission:
+    ownedBy: apps/api-legacy/src/seed.ts (PERMISSION_KEYS)
+    exposedBy: GET /roles/permissions (quyen role.read)
+    mutableViaApi: false
