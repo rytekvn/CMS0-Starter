@@ -1,8 +1,5 @@
-// Ky/verify JWT cho phien dang nhap. Noi DUY NHAT trong apps/api doc JWT_SECRET.
-//
-// Phai KHOP apps/api-legacy/src/auth/jwt.ts (cung secret, cung payload `{ userId }`,
-// cung expiresIn): hai stack chay song song va doc chung mot bang User, nen token
-// ky o ben nao cung dung duoc o ben kia. Rang buoc nay bien mat khi xoa apps/*-legacy.
+// Ky/verify JWT cho phien dang nhap. Noi DUY NHAT doc JWT_SECRET.
+// Payload `{ userId }`, expiresIn 7d. Doi secret -> moi token dang luu hanh het hieu luc.
 // ponytail: sign/verify goi thang jsonwebtoken, chua co refresh token flow (them khi can)
 import jwt from "jsonwebtoken";
 

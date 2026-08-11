@@ -1,9 +1,14 @@
 // Seed: 4 role mac dinh + permission mau + 1 super admin.
-// Chay: npm run db:seed (idempotent, chay lai duoc nhieu lan).
-// ponytail: file nam trong api/src/ chu khong phai prisma/ vi thu muc prisma/ o repo root
-// khong co package.json/node_modules -> import "@prisma/client" tu do se khong resolve duoc.
+// Chay: pnpm db:seed (idempotent, chay lai duoc nhieu lan).
+// ponytail: file nam trong apps/api/src/ chu khong phai prisma/ vi thu muc prisma/
+// o repo root khong co package.json/node_modules -> import "@prisma/client" tu do
+// se khong resolve duoc.
+// Chay bang tsx nhu mot script CLI doc lap, khong qua Nest DI -> dung thang
+// PrismaClient chu khong phai PrismaService.
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { prisma } from "./prisma";
+
+const prisma = new PrismaClient();
 
 const PERMISSION_KEYS = [
   "user.read",
@@ -42,7 +47,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
   viewer: PERMISSION_KEYS.filter((k) => k.endsWith(".read")),
 };
 
-async function main() {
+async function main(): Promise<void> {
   for (const key of PERMISSION_KEYS) {
     await prisma.permission.upsert({ where: { key }, update: {}, create: { key } });
   }

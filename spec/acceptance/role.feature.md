@@ -35,7 +35,7 @@ Base path: `/roles`. Moi route deu qua `requireAuth`.
   quyen o `apps/admin-web` can danh sach key de render checkbox; khong tao
   module/CRUD Permission rieng vi day la du lieu tham chieu do seed so huu.
 - **Then** `200` + `Permission[]` (chi record `deletedAt = null`), hien tai 17 key
-  do `apps/api-legacy/src/seed.ts` tao ra.
+  do `apps/api/src/seed.ts` tao ra.
 - **Then** route nay duoc khai bao **truoc** `/:id` de khong bi route param nuot mat
   (khong duoc tra `404 {"error":"Not found"}`).
 

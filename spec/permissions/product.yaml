@@ -1,4 +1,4 @@
-# Map 1:1 tu apps/api-legacy/src/seed.ts (PERMISSION_KEYS + ROLE_PERMISSIONS).
+# Map 1:1 tu apps/api/src/seed.ts (PERMISSION_KEYS + ROLE_PERMISSIONS).
 # Quyen luu trong DB (Role -> Permission), khong hard-code trong code.
 entity: Product
 

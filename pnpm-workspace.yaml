@@ -2,10 +2,9 @@ packages:
   - "apps/*"
   - "packages/*"
 
-# Tat private hoist (node_modules/.pnpm/node_modules). Co hoist thi @types/react 19
-# cua apps/admin-web bi react-router-dom cua admin-web-legacy (React 18) nhin thay
-# -> tsc bao "cannot be used as a JSX component". Tat di, moi app chi thay dung
-# dependency no khai bao.
+# Tat private hoist (node_modules/.pnpm/node_modules): moi app chi thay dung
+# dependency no khai bao, khong an nham type/package cua app khac trong workspace
+# (tung lam tsc bao "cannot be used as a JSX component" khi hai app lech ban React).
 hoist: false
 
 onlyBuiltDependencies:

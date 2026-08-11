@@ -7,7 +7,9 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "test": "node --import tsx --test \"src/**/*.test.ts\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "prisma migrate dev --schema ../../prisma/schema.prisma",
+    "db:seed": "tsx --env-file=.env src/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",

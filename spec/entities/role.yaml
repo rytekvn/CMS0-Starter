@@ -67,10 +67,10 @@ audit:
     - role.delete   # entityId = Role.id, khong metadata
 
 # Permission la du lieu tham chieu do seed so huu (17 key co dinh, xem
-# apps/api-legacy/src/seed.ts). KHONG co CRUD Permission: chi doc qua
+# apps/api/src/seed.ts). KHONG co CRUD Permission: chi doc qua
 # GET /roles/permissions de form gan quyen co danh sach chon.
 referenceData:
   Permission:
-    ownedBy: apps/api-legacy/src/seed.ts (PERMISSION_KEYS)
+    ownedBy: apps/api/src/seed.ts (PERMISSION_KEYS)
     exposedBy: GET /roles/permissions (quyen role.read)
     mutableViaApi: false

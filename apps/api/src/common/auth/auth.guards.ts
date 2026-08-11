@@ -1,6 +1,5 @@
-// Auth guard mirror `requireAuth` + `requirePermission` cua legacy.
-// Token do ./jwt.ts ky va verify (1 noi so huu JWT_SECRET). Ca apps/api lan
-// apps/api-legacy deu ky token bang chung secret/payload nen dung lan nhau duoc.
+// Auth guard: `requireAuth` + `requirePermission`.
+// Token do ./jwt.ts ky va verify (1 noi so huu JWT_SECRET).
 // ponytail: verify JWT bang jsonwebtoken truc tiep, khong Passport (1 dep thay vi 4);
 // query user moi request, chua cache - them khi do duoc la cham.
 import {

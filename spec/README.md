@@ -35,32 +35,33 @@ spec/
 
 ## Nguon su that cua spec hien tai
 
-Moi spec deu duoc map **1:1 tu code dang chay** (`apps/api-legacy`), khong
-phai thiet ke moi:
+Moi spec deu duoc map **1:1 tu code dang chay**, khong phai thiet ke moi.
+Spec viet ra tu `apps/api-legacy` (Hono) khi do la code dang chay; sau khi
+migrate xong va xoa legacy, nguon su that la `apps/api` (NestJS):
 
 | Spec | Map tu |
 |---|---|
-| `entities/product.yaml` | `prisma/schema.prisma` (model `Product`) + `apps/api-legacy/src/schemas/product.schema.ts` |
-| `permissions/product.yaml` | `apps/api-legacy/src/seed.ts` (`ROLE_PERMISSIONS`) |
-| `acceptance/product.feature.md` | `apps/api-legacy/src/routes/product.routes.ts` + `services/product.service.ts` |
-| `entities/user.yaml` | `prisma/schema.prisma` (model `User`, `UserRole`) + `apps/api-legacy/src/schemas/user.schema.ts` + `types.ts` (`userSelect`) |
-| `permissions/user.yaml` | `apps/api-legacy/src/seed.ts` (`ROLE_PERMISSIONS`) |
-| `acceptance/user.feature.md` | `apps/api-legacy/src/routes/{auth,user}.routes.ts` + `services/user.service.ts` |
-| `entities/role.yaml` | `prisma/schema.prisma` (model `Role`, `Permission`) + `apps/api-legacy/src/schemas/role.schema.ts` |
-| `permissions/role.yaml` | `apps/api-legacy/src/seed.ts` (`ROLE_PERMISSIONS`) |
-| `acceptance/role.feature.md` | `apps/api-legacy/src/routes/role.routes.ts` + `services/role.service.ts` |
-| `entities/file.yaml` | `prisma/schema.prisma` (model `FileAsset`) + `apps/api-legacy/src/schemas/file.schema.ts` |
-| `permissions/file.yaml` | `apps/api-legacy/src/seed.ts` (`ROLE_PERMISSIONS`) |
-| `acceptance/file.feature.md` | `apps/api-legacy/src/routes/file.routes.ts` + `services/file.service.ts` |
+| `entities/product.yaml` | `prisma/schema.prisma` (model `Product`) + `apps/api/src/modules/products/product.schema.ts` |
+| `permissions/product.yaml` | `apps/api/src/seed.ts` (`ROLE_PERMISSIONS`) |
+| `acceptance/product.feature.md` | `apps/api/src/modules/products/product.controller.ts` + `product.service.ts` |
+| `entities/user.yaml` | `prisma/schema.prisma` (model `User`, `UserRole`) + `apps/api/src/modules/users/user.schema.ts` + `users/user.service.ts` (`userSelect`) |
+| `permissions/user.yaml` | `apps/api/src/seed.ts` (`ROLE_PERMISSIONS`) |
+| `acceptance/user.feature.md` | `apps/api/src/modules/{auth/auth.controller.ts,users/user.controller.ts}` + `users/user.service.ts` |
+| `entities/role.yaml` | `prisma/schema.prisma` (model `Role`, `Permission`) + `apps/api/src/modules/roles/role.schema.ts` |
+| `permissions/role.yaml` | `apps/api/src/seed.ts` (`ROLE_PERMISSIONS`) |
+| `acceptance/role.feature.md` | `apps/api/src/modules/roles/role.controller.ts` + `role.service.ts` |
+| `entities/file.yaml` | `prisma/schema.prisma` (model `FileAsset`) + `apps/api/src/modules/files/file.schema.ts` |
+| `permissions/file.yaml` | `apps/api/src/seed.ts` (`ROLE_PERMISSIONS`) |
+| `acceptance/file.feature.md` | `apps/api/src/modules/files/file.controller.ts` + `file.service.ts` |
 
 Vi vay day la **spec mo ta hien trang**, dung lam mau va lam moc doi chieu khi
-migrate module sang NestJS (`apps/api`). Khi hanh vi that va spec lech
-nhau: **bao conflict, khong sua spec cho khop code**.
+them module moi. Khi hanh vi that va spec lech nhau: **bao conflict, khong sua
+spec cho khop code**.
 
-Cho nao `apps/api` co y lam khac legacy deu duoc danh dau **[LECH]** ngay trong
-spec (vd `orderBy: createdAt desc` cho `GET /users` va `GET /roles`,
-endpoint moi `GET /roles/permissions`) — day la quyet dinh co chu dich, khong
-phai bug.
+Cac cho danh dau **[LECH]** trong spec la noi `apps/api` co y lam khac hanh vi
+legacy khi migrate (vd `orderBy: createdAt desc` cho `GET /users` va `GET /roles`,
+endpoint moi `GET /roles/permissions`) — quyet dinh co chu dich, khong phai bug.
+Giu lai de doi chieu lich su; hanh vi dung la hanh vi cua `apps/api`.
 
 ## Quy tac
 

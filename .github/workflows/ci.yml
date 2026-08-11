@@ -22,7 +22,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Bat buoc truoc typecheck: apps/api-legacy dung type sinh ra tu Prisma schema.
+      # Bat buoc truoc typecheck: apps/api dung type sinh ra tu Prisma schema.
       - run: pnpm db:generate
 
       - run: pnpm lint

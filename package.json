@@ -10,11 +10,9 @@
     "build": "pnpm -r build",
     "dev:api": "pnpm --filter @rytek/api dev",
     "dev:web": "pnpm --filter @rytek/admin-web dev",
-    "dev:legacy:api": "pnpm --filter cms-starter-api dev",
-    "dev:legacy:web": "pnpm --filter cms-starter-admin-web dev",
     "db:generate": "prisma generate --schema prisma/schema.prisma",
-    "db:migrate": "pnpm --filter cms-starter-api db:migrate",
-    "db:seed": "pnpm --filter cms-starter-api db:seed"
+    "db:migrate": "pnpm --filter @rytek/api db:migrate",
+    "db:seed": "pnpm --filter @rytek/api db:seed"
   },
   "devDependencies": {
     "@prisma/client": "^5.22.0",
