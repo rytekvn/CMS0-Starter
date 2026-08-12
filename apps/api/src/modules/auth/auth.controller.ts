@@ -3,6 +3,7 @@
 // qua mong de tach them mot tang. Moi truy cap DB di qua UserService (module exports).
 import { Body, Controller, Get, HttpCode, Post, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import bcrypt from "bcryptjs";
 import type { z } from "zod";
 import { CurrentUser, JwtAuthGuard } from "../../common/auth/auth.guards";
@@ -23,6 +24,8 @@ export class AuthController {
 
   // Route public duy nhat ngoai /health*: khong gan JwtAuthGuard.
   // Email khong ton tai / user da xoa mem / sai mat khau -> cung mot message.
+  // Rate limit siet hon global (100/60s): chong brute-force mat khau.
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post("login")
   @HttpCode(200)
   @ApiOperation({

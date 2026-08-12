@@ -1,7 +1,11 @@
 import { Controller, Get, ServiceUnavailableException } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { SkipThrottle } from "@nestjs/throttler";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 
+// Bo qua rate limit toan cuc: orchestrator/k8s goi /health/live, /health/ready
+// lien tuc, khong phai traffic can chan.
+@SkipThrottle()
 @Controller("health")
 @ApiTags("health")
 export class HealthController {

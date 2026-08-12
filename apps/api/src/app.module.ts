@@ -1,6 +1,7 @@
 import { BullModule } from "@nestjs/bullmq";
 import { Module } from "@nestjs/common";
-import { APP_FILTER } from "@nestjs/core";
+import { APP_FILTER, APP_GUARD } from "@nestjs/core";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AppExceptionFilter } from "./common/app-exception.filter";
 import { RedisModule } from "./infrastructure/cache/redis.module";
 import { REDIS_URL } from "./infrastructure/cache/redis.service";
@@ -17,6 +18,10 @@ import { UserModule } from "./modules/users/user.module";
   imports: [
     DatabaseModule,
     RedisModule,
+    // Rate limit toan cuc chong spam request; /auth/login siet rieng bang
+    // @Throttle o controller (chong brute-force). Health controller bo qua
+    // bang @SkipThrottle - orchestrator/k8s goi lien tuc khong duoc chan.
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }]),
     // Connection RIENG, khong dung chung client cua RedisService: worker BullMQ
     // BAT BUOC maxRetriesPerRequest: null (blocking command BRPOPLPUSH phai cho
     // vo han). Cache thi nguoc lai - phai fail nhanh. Cung 1 Redis server, khac
@@ -30,6 +35,9 @@ import { UserModule } from "./modules/users/user.module";
     RoleModule,
     FileModule,
   ],
-  providers: [{ provide: APP_FILTER, useClass: AppExceptionFilter }],
+  providers: [
+    { provide: APP_FILTER, useClass: AppExceptionFilter },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

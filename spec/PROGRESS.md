@@ -6,37 +6,43 @@ cho từng thay đổi nhỏ. Xem `@rules/session-continuity.md` (global).
 
 ## Đang làm
 
-**v0.7 — CLI (`@rytek/cli`)** — code đã xong, 4 lệnh kiểm tra đã xanh, **vẫn CHƯA commit** (chờ user yêu cầu).
+**v0.7 — CLI (`@rytek/cli`) — DONE.** Code xong, 4 lệnh kiểm tra xanh, đã
+commit (`cd50ffd`) và push lên remote.
 
-Working tree hiện tại (`git status --short`):
-```
- M CLAUDE.md          # v0.7 CLI section + release note DONE + packages/ table
- M README.md          # section "Tao du an moi tu starter"
- M package.json        # script "cli", lint mo rong sang packages/
- M pnpm-lock.yaml
-?? packages/           # packages/cli/{index.mjs,index.test.mjs,package.json,templates/}
-?? spec/PROGRESS.md
-?? spec/decisions/ADR-0003-cli-sinh-du-an-moi.md
-```
-(`.claude/skills/.DS_Store` đã xoá khỏi filesystem — không còn trong status.)
+**v0.8 — Production hardening — mảng "security headers" DONE (chưa commit).**
+`apps/api`:
+- Helmet (`app.use(helmet(...))` trong `apps/api/src/main.ts`) — HSTS,
+  X-Frame-Options, X-Content-Type-Options, CSP mặc định. CSP tắt khi
+  `NODE_ENV !== "production"` vì Swagger UI (`/docs`) cần inline script/style
+  và chỉ chạy ở dev; production giữ CSP mặc định (Swagger đã tắt ở đó).
+- CORS: **không bật** — `app.enableCors()` không được gọi (giữ mặc định
+  NestJS = tắt). Lý do: `apps/admin-web` gọi `apps/api` từ phía server
+  (Server Component/Action đọc token từ cookie httpOnly), không có fetch
+  trực tiếp từ browser JS tới `:4000` (xem comment trong
+  `apps/admin-web/lib/api.ts`). Bật CORS whitelist origin lúc này là cấu
+  hình cho use case chưa tồn tại — nếu sau này có client browser gọi thẳng
+  API, quay lại bật `app.enableCors({ origin: [...] })` lúc đó.
+- Rate limit: `@nestjs/throttler`, global 100 req/60s qua `APP_GUARD` trong
+  `apps/api/src/app.module.ts`. `/health*` dùng `@SkipThrottle()`
+  (`apps/api/src/modules/health/health.controller.ts`) để không chặn
+  liveness/readiness probe. `POST /auth/login` siết riêng 5 req/60s qua
+  `@Throttle()` (`apps/api/src/modules/auth/auth.controller.ts`) chống
+  brute-force.
+- Dependency mới: `helmet@^8.3.0`, `@nestjs/throttler@^6.5.0` trong
+  `apps/api/package.json` — không có cách hợp lý làm đủ các header/rate
+  limit này bằng 0 dependency; cả hai là chuẩn de-facto trong hệ NestJS/Express.
+- Không thêm ADR: middleware chuẩn, không có tranh cãi thiết kế — quyết
+  định CORS đã ghi rõ ở đây và comment trong `main.ts`.
+- 4 lệnh kiểm tra (`lint`, `typecheck`, `test`, `build`) đều xanh.
+- **Chưa commit** — chờ user duyệt.
 
-Đã xong theo ADR-0003:
-- `pnpm cli create <path>` — sinh dự án mới từ `git ls-files` (chỉ file đã
-  commit), đổi tên theo bảng `REWRITES` trong `packages/cli/index.mjs`,
-  không tự chạy install/git/docker/db.
-- `pnpm cli doctor` — kiểm Node/pnpm/Docker/đĩa/git.
-- Test: `packages/cli/index.test.mjs`.
+## Việc còn lại
 
-## Việc còn lại trước khi commit v0.7
-
-- [x] Chạy `pnpm lint && pnpm typecheck && pnpm test && pnpm build` — đã chạy
-      lại, cả 4 lệnh đều PASS, không phát sinh lỗi, không cần sửa gì.
-- [x] Xoá `.claude/skills/.DS_Store` (rác macOS, không phải phần của thay
-      đổi này) — đã xoá khỏi filesystem, không `git add`/commit.
-- [ ] Sau khi xanh: hỏi user trước khi `git add` + commit (rule: chỉ commit
-      khi được yêu cầu). **Sẵn sàng commit, đang chờ user xác nhận.**
-- [ ] Chưa làm (ADR-0003 §5, không thuộc v0.7 lần này): publish
+- [ ] v0.8 còn lại: backup/restore runbook, metrics/alerting/tracing, load
+      test, deploy + rollback runbook — chưa làm.
+- [ ] Chưa làm (ADR-0003 §5, không thuộc v0.7): publish
       `pnpm create rytek-cms` lên npm.
+- [x] User đã xác nhận: giữ CORS tắt như hiện tại.
 
 ## Quyết định đã chốt liên quan
 
@@ -45,8 +51,6 @@ Working tree hiện tại (`git status --short`):
   hướng dẫn, không tự chạy lệnh nặng.
 - `packages/cli` zero-dependency (đúng luật "không thêm dependency khi
   stdlib giải quyết được").
-
-## Ngoài phạm vi v0.7 (không đụng vào trừ khi user yêu cầu)
-
-- v0.8+ Production hardening (security headers, backup/restore runbook,
-  metrics/alerting/tracing, load test, deploy runbook) — chưa bắt đầu.
+- Security headers v0.8: CORS giữ tắt (xem giải thích ở trên); helmet +
+  throttler là dependency hợp lý (không có helper stdlib/đã cài thay thế
+  được).
