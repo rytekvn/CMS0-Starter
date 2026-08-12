@@ -1,5 +1,6 @@
-# Postgres + Redis cho dev. Redis moi chi khai bao san, chua app nao connect
-# (BullMQ se dung o dot sau).
+# Postgres + Redis cho dev. `apps/api` connect Redis that: cache auth
+# (`auth:user:v1:*`) + queue BullMQ (`bull:notification:*`) tren cung server nay,
+# hai connection khac policy - xem spec/decisions/ADR-0002-redis-cache-bullmq.md.
 services:
   postgres:
     image: postgres:16-alpine

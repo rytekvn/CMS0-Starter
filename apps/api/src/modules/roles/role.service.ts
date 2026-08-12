@@ -4,6 +4,8 @@ import { Injectable } from "@nestjs/common";
 import type { Permission, Prisma } from "@prisma/client";
 import type { z } from "zod";
 import { logAudit } from "../../common/audit";
+import { invalidateUsers } from "../../common/auth/auth-cache";
+import { RedisService } from "../../infrastructure/cache/redis.service";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
 import type { createRoleSchema, updateRoleSchema } from "./role.schema";
 
@@ -13,7 +15,22 @@ export type RoleResponse = Prisma.RoleGetPayload<{ include: typeof roleInclude }
 
 @Injectable()
 export class RoleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService
+  ) {}
+
+  // Doi/xoa role lam cache auth cua MOI user dang giu role do bi cu.
+  // Query dung danh sach userId thay vi `KEYS auth:user:v1:*`: KEYS la lenh
+  // blocking O(N) tren toan keyspace VA se xoa nham cache cua user khong lien
+  // quan. Day la hanh dong admin hiem, co index (@@unique userId+roleId).
+  private async invalidateRoleMembers(roleId: string): Promise<void> {
+    const members = await this.prisma.userRole.findMany({
+      where: { roleId, deletedAt: null },
+      select: { userId: true },
+    });
+    await invalidateUsers(this.redis, members.map((m) => m.userId));
+  }
 
   // orderBy la LECH CO CHU DICH so voi legacy (khong co ORDER BY): thu tu on dinh
   // giua cac lan goi. Xem spec/entities/role.yaml.
@@ -88,6 +105,8 @@ export class RoleService {
       entityId: role.id,
       metadata: { fields: Object.keys(data) },
     });
+
+    await this.invalidateRoleMembers(id);
     return role;
   }
 
@@ -104,6 +123,9 @@ export class RoleService {
       entity: "Role",
       entityId: role.id,
     });
+
+    // Role soft delete khong con cap quyen -> phai day cache di ngay.
+    await this.invalidateRoleMembers(id);
     return role;
   }
 }

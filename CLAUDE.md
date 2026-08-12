@@ -9,7 +9,7 @@ PostgreSQL + Redis, phat trien theo Spec-Driven Development.
 Kien truc hien tai — **mot stack duy nhat**:
 
 ```
-apps/api             NestJS  :4000   dang chay that: auth (login/me), user, role, file (upload/download), Product (CRUD, filter, CSV export/import, bulk action)
+apps/api             NestJS  :4000   dang chay that: auth (login/me), user, role, file (upload/download), Product (CRUD, filter, CSV export/import, bulk action); cache auth qua Redis + queue BullMQ (worker in-process)
 apps/admin-web       Next.js :3000   dang chay that: /login, /products, /users, /roles (list, new, detail, edit)
 prisma/              schema.prisma - single source of truth cho DB
 spec/                contract nghiep vu da duyet
@@ -112,8 +112,21 @@ pnpm dev:web                     # Next.js :3000
   **Moi query list/detail phai loc `deletedAt: null`.**
 - **Transaction:** nhieu lenh ghi phai nhat quan -> `prisma.$transaction`.
 - **Health:** `/health/live` khong duoc cham DB; `/health/ready` cham DB va
-  tra 503 khi DB down.
-- Idempotency va queue (BullMQ): chua co. Khi lam, theo roadmap §7.7/§7.8.
+  tra 503 khi DB down. **Redis khong nam trong `/health/ready`** — auth van chay
+  khi Redis chet.
+- **Cache (Redis):** chi cache khi da do duoc la cham. Cho duy nhat dang cache la
+  user+permissions cua `JwtAuthGuard` (`common/auth/auth-cache.ts`, key
+  `auth:user:v1:<id>`, TTL 60s). Luat: **cache-aside + invalidate chu dong o moi
+  duong ghi**; TTL chi la tran an toan. Redis chet -> degrade im lang ve DB
+  (log `warn`), khong bao gio throw len guard. Khong dung `KEYS` de invalidate.
+- **Queue (BullMQ):** job dat trong `modules/notifications/`, worker chay
+  in-process (chua co `apps/worker`). Payload job phai co `v` (version) + `parse`
+  bang Zod **trong processor**; payload sai -> `UnrecoverableError` (fail ngay,
+  khong retry). Enqueue tu service sau khi ghi DB xong, bat `try/catch` +
+  log `error` — **queue chet khong duoc doi hanh vi/response cua endpoint**.
+  Truyen `requestId` (`req.id`) vao payload de log worker trace duoc.
+  Xem `spec/decisions/ADR-0002-redis-cache-bullmq.md`.
+- Idempotency: chua co use case cu the, chua lam. Khi lam, theo roadmap §7.8.
 
 ## Coding Convention
 
@@ -159,8 +172,10 @@ Danh so theo repo nay (khac voi danh so cua roadmap platform).
   file da migrate sang `apps/api` + `apps/admin-web`; `apps/admin-web` khong con goi
   `api-legacy` (bien `LEGACY_API_URL` da bo).
 - **v0.4.5 — Backend Hardening.** OpenAPI/Swagger da xong (`/docs`, `/docs-json`,
-  Zod schema sinh doc qua `zod-to-json-schema`, khong DTO class). Con lai: Redis
-  cache, BullMQ, idempotency — chua co use case cu the, chua lam.
+  Zod schema sinh doc qua `zod-to-json-schema`, khong DTO class). Redis cache
+  (auth user+permissions) va BullMQ (queue `notification`, job `user.welcome`)
+  da xong — ADR-0002. Con lai: **idempotency** — chua co use case cu the,
+  chua lam.
 - **v0.5 — Integrated. DONE.** Next.js admin da thay the `admin-web-legacy`:
   Tailwind + shadcn/ui, TanStack Table, permission-aware navigation.
   `apps/api-legacy` + `apps/admin-web-legacy` da bi xoa khoi repo; seed script

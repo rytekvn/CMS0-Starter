@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
@@ -63,9 +64,12 @@ export class UserController {
   @ApiResponse({ status: 201, description: "User vua tao." })
   create(
     @Body(CreatePipe) data: z.infer<typeof createUserSchema>,
-    @CurrentUser() actor: AuthUser
+    @CurrentUser() actor: AuthUser,
+    // `id` do pino-http gan (common/logging.ts) va echo trong header
+    // x-request-id -> di theo job de trace duoc tu client sang log worker.
+    @Req() req: { id?: string }
   ): Promise<UserResponse> {
-    return this.users.create(data, actor.id);
+    return this.users.create(data, actor.id, req.id);
   }
 
   @Patch(":id")

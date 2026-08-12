@@ -11,3 +11,7 @@ export const logging = pinoHttp({
     return id;
   },
 });
+
+// Cung mot pino instance, dung cho code chay NGOAI vong doi request
+// (job processor, connection Redis) - de log app chi co mot dinh dang.
+export const logger = logging.logger;

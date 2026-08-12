@@ -1,6 +1,8 @@
 // Helper permission thong nhat: can(user, "product.create")
 // Quyen den tu DB: User -> UserRole -> Role -> Permission (load san o JwtAuthGuard).
-// ponytail: check tren mang da load, chua co cache - them khi so query thanh nut co chai
+// Ham thuan, khong I/O: chi duyet mang AuthUser da load san. Ban than AuthUser
+// da duoc cache o tang JwtAuthGuard (xem common/auth/auth-cache.ts) nen ham nay
+// khong can cache rieng.
 import type { AuthUser } from "./auth.types";
 
 export function can(user: AuthUser, permissionKey: string): boolean {

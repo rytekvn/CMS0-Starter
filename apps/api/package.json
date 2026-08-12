@@ -12,12 +12,15 @@
     "db:seed": "tsx --env-file=.env src/seed.ts"
   },
   "dependencies": {
+    "@nestjs/bullmq": "^11.0.5",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/swagger": "^11.4.6",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^2.4.3",
+    "bullmq": "^5.81.3",
+    "ioredis": "^5.11.1",
     "jsonwebtoken": "^9.0.3",
     "pino-http": "^10.4.0",
     "reflect-metadata": "^0.2.2",

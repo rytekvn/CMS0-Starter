@@ -5,7 +5,11 @@ import type { Prisma, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import type { z } from "zod";
 import { logAudit } from "../../common/audit";
+import { invalidateUsers } from "../../common/auth/auth-cache";
+import { logger } from "../../common/logging";
+import { RedisService } from "../../infrastructure/cache/redis.service";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { NotificationService } from "../notifications/notification.service";
 import type { createUserSchema, updateUserSchema } from "./user.schema";
 
 const BCRYPT_ROUNDS = 10;
@@ -30,7 +34,11 @@ export type UserResponse = Prisma.UserGetPayload<{ select: typeof userSelect }>;
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+    private readonly notifications: NotificationService
+  ) {}
 
   // Chi dung cho login: la cho duy nhat can doc password hash -> tra ca row User.
   findByEmail(email: string): Promise<User | null> {
@@ -51,9 +59,12 @@ export class UserService {
     return this.prisma.user.findFirst({ where: { id, deletedAt: null }, select: userSelect });
   }
 
+  // requestId (do pino-http sinh, echo trong header x-request-id) di theo job de
+  // log cua worker truy nguoc duoc ve request da tao user - roadmap §7.7.
   async create(
     data: z.infer<typeof createUserSchema>,
-    actorId: string
+    actorId: string,
+    requestId?: string
   ): Promise<UserResponse> {
     const { roleIds = [], password, ...rest } = data;
     const user = await this.prisma.user.create({
@@ -80,6 +91,19 @@ export class UserService {
       entityId: user.id,
       metadata: { email: user.email },
     });
+
+    // Enqueue KHONG duoc lam hong POST /users: user da nam trong DB roi. De loi
+    // noi len -> Redis chet thi tra 500, client tuong that bai va retry -> 500
+    // duplicate email. Bat + log error (co userId de enqueue lai tay), response
+    // giu nguyen.
+    try {
+      await this.notifications.enqueueWelcome(user.id, requestId);
+    } catch (err) {
+      logger.error(
+        { err: String(err), userId: user.id, requestId },
+        "enqueue user.welcome failed"
+      );
+    }
     return user;
   }
 
@@ -120,6 +144,9 @@ export class UserService {
       // Chi ghi TEN field da gui, khong ghi gia tri -> khong co mat khau trong log.
       metadata: { fields: Object.keys(data) },
     });
+
+    // Doi role/ten/email -> AuthUser trong cache da cu.
+    await invalidateUsers(this.redis, [id]);
     return user;
   }
 
@@ -136,6 +163,9 @@ export class UserService {
       entity: "User",
       entityId: user.id,
     });
+
+    // Khong invalidate = user da xoa mem van dang nhap duoc them 60s.
+    await invalidateUsers(this.redis, [id]);
     return user;
   }
 }

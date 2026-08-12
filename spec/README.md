@@ -30,7 +30,8 @@ spec/
 │   ├── role.feature.md
 │   └── file.feature.md
 └── decisions/
-    └── ADR-0001-nestjs-nextjs-pnpm-monorepo.md
+    ├── ADR-0001-nestjs-nextjs-pnpm-monorepo.md
+    └── ADR-0002-redis-cache-bullmq.md
 ```
 
 ## Nguon su that cua spec hien tai

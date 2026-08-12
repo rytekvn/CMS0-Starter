@@ -1,7 +1,8 @@
 // Auth guard: `requireAuth` + `requirePermission`.
 // Token do ./jwt.ts ky va verify (1 noi so huu JWT_SECRET).
-// ponytail: verify JWT bang jsonwebtoken truc tiep, khong Passport (1 dep thay vi 4);
-// query user moi request, chua cache - them khi do duoc la cham.
+// ponytail: verify JWT bang jsonwebtoken truc tiep, khong Passport (1 dep thay vi 4).
+// User+permissions doc qua cache Redis (cache-aside, TTL 60s) - xem
+// ./auth-cache.ts va spec/decisions/ADR-0002-redis-cache-bullmq.md.
 import {
   createParamDecorator,
   ExecutionContext,
@@ -12,7 +13,9 @@ import {
   type CanActivate,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { RedisService } from "../../infrastructure/cache/redis.service";
 import { PrismaService } from "../../infrastructure/database/prisma.service";
+import { cacheUser, getCachedUser } from "./auth-cache";
 import { can } from "./can";
 import { verifyUserId } from "./jwt";
 import { userWithPermissions, type AuthUser } from "./auth.types";
@@ -24,7 +27,10 @@ type RequestWithUser = {
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -39,11 +45,17 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException({ error: "Invalid token" });
     }
 
-    const user = await this.prisma.user.findFirst({
-      where: { id: userId, deletedAt: null },
-      include: userWithPermissions,
-    });
-    if (!user) throw new UnauthorizedException({ error: "Unauthorized" });
+    // Cache-aside: chi cache user CON SONG (deletedAt: null). Xoa mem / doi role /
+    // doi quyen deu invalidate chu dong; TTL chi la luoi an toan.
+    let user = await getCachedUser(this.redis, userId);
+    if (!user) {
+      user = await this.prisma.user.findFirst({
+        where: { id: userId, deletedAt: null },
+        include: userWithPermissions,
+      });
+      if (!user) throw new UnauthorizedException({ error: "Unauthorized" });
+      await cacheUser(this.redis, user);
+    }
 
     request.user = user;
     return true;
