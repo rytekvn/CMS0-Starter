@@ -1,4 +1,4 @@
-// Shape user chuan cho auth. Copy tu apps/api-legacy/src/types.ts (phan auth).
+// Shape user chuan cho auth. Khop voi shape cua stack Hono cu truoc khi migrate.
 import type { Prisma } from "@prisma/client";
 
 // Dung cho JwtAuthGuard: can day du permission keys de `can()` chay duoc.

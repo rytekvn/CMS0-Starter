@@ -1,4 +1,4 @@
-// Mirror apps/api-legacy/src/routes/role.routes.ts, cong them GET /roles/permissions
+// Hanh vi khop route role cua stack Hono cu truoc khi migrate, cong them GET /roles/permissions
 // (endpoint moi, chi co o apps/api - xem spec/acceptance/role.feature.md).
 import {
   Body,

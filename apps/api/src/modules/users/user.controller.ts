@@ -1,4 +1,4 @@
-// Mirror apps/api-legacy/src/routes/user.routes.ts.
+// Hanh vi khop route user cua stack Hono cu truoc khi migrate.
 import {
   Body,
   Controller,

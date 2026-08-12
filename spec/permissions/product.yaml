@@ -26,5 +26,5 @@ enforcement:
     - Role da soft delete (deletedAt != null) khong con cap quyen (xem permissions/can.ts).
   frontend:
     - UI an/hien action theo cung bo key nay
-      (apps/admin-web-legacy/src/modules/products/permissions.ts).
+      (apps/admin-web/app/(app)/products/permissions.ts).
     - An o frontend chi la UX; backend van la cho quyet dinh.

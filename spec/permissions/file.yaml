@@ -20,7 +20,7 @@ enforcement:
     - Moi route kiem tra bang `@RequirePermission("<key>")` -> 403 neu khong du quyen.
   frontend:
     - Component `apps/admin-web/components/file-uploader.tsx` KHONG tu kiem quyen —
-      parity voi `apps/admin-web-legacy/src/components/FileUploader.tsx`: caller
+      parity voi component FileUploader cua stack Vite cu (da xoa): caller
       tu boc kiem tra "file.upload" neu can. Chua trang nao dung component nay.
     - Route Handler `app/api/files/[id]` chi proxy; quyen do backend quyet dinh
       (thieu quyen -> forward nguyen 403 JSON cua API).

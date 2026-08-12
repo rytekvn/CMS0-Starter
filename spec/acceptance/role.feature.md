@@ -1,6 +1,6 @@
 # Acceptance — Role
 
-Mo ta **hanh vi that** cua `apps/api-legacy` (`routes/role.routes.ts` +
+Mo ta **hanh vi that** cua stack Hono cu (da xoa; `routes/role.routes.ts` +
 `services/role.service.ts`) tai thoi diem viet spec. Dung lam moc doi chieu khi
 migrate sang NestJS (`apps/api`): hanh vi moi phai khop, lech cho nao phai la
 quyet dinh co chu dich (danh dau **[LECH]**).

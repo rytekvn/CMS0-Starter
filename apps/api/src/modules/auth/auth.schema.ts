@@ -1,4 +1,4 @@
-// Copy 1:1 tu apps/api-legacy/src/schemas/user.schema.ts (loginSchema).
+// Hanh vi khop loginSchema cua stack Hono cu truoc khi migrate.
 import { z } from "zod";
 
 export const loginSchema = z.object({

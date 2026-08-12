@@ -1,7 +1,7 @@
 # Map 1:1 tu code dang chay, khong them field nao chua ton tai:
 #   - prisma/schema.prisma                            -> model FileAsset
-#   - apps/api-legacy/src/schemas/file.schema.ts      -> validation
-#   - apps/api-legacy/src/services/file.service.ts    -> audit event
+#   - apps/api/src/modules/files/file.schema.ts       -> validation
+#   - apps/api/src/modules/files/file.service.ts      -> audit event
 entity: FileAsset
 description: >
   File nguoi dung tai len. KHONG co quan he voi entity nao khac trong
@@ -80,7 +80,7 @@ audit:
 
 storage:
   driver: local disk
-  dir: apps/api/uploads/ (apps/api-legacy/uploads/ o stack legacy)
+  dir: apps/api/uploads/ (stack Hono cu, da xoa, cung dung thu muc uploads/ rieng)
   gitignored: apps/*/uploads/
   notes: >
     File duoc doc ca vao RAM khi upload va khi download (tran 5MB). Doi sang

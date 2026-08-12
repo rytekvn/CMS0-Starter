@@ -1,7 +1,7 @@
 # Map 1:1 tu code dang chay, khong them field nao chua ton tai:
 #   - prisma/schema.prisma                            -> model Role, model Permission
-#   - apps/api-legacy/src/schemas/role.schema.ts      -> validation
-#   - apps/api-legacy/src/services/role.service.ts    -> audit event
+#   - apps/api/src/modules/roles/role.schema.ts       -> validation
+#   - apps/api/src/modules/roles/role.service.ts      -> audit event
 entity: Role
 description: Nhom quyen gan cho User. Quyen den tu DB (Role -> Permission), khong hard-code.
 
@@ -51,7 +51,7 @@ indexes:
   - name (unique)
 
 softDelete: true
-# LECH CO CHU DICH so voi apps/api-legacy (giong User): legacy khong co ORDER BY.
+# LECH CO CHU DICH so voi stack Hono cu (da xoa, giong User): legacy khong co ORDER BY.
 defaultOrder: createdAt desc
 
 permissions:

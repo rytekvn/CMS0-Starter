@@ -1,4 +1,4 @@
-// Mirror apps/api-legacy/src/routes/auth.routes.ts.
+// Hanh vi khop route auth cua stack Hono cu truoc khi migrate.
 // ponytail: khong co auth.service - logic con lai chi la bcrypt.compare + signToken,
 // qua mong de tach them mot tang. Moi truy cap DB di qua UserService (module exports).
 import { Body, Controller, Get, HttpCode, Post, UnauthorizedException, UseGuards } from "@nestjs/common";

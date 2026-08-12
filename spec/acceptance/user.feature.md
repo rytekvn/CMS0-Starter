@@ -1,6 +1,6 @@
 # Acceptance — Auth + User
 
-Mo ta **hanh vi that** cua `apps/api-legacy` (`routes/auth.routes.ts`,
+Mo ta **hanh vi that** cua stack Hono cu (da xoa; `routes/auth.routes.ts`,
 `routes/user.routes.ts` + `services/user.service.ts`) tai thoi diem viet spec.
 Dung lam moc doi chieu khi migrate sang NestJS (`apps/api`): hanh vi moi phai
 khop, lech cho nao phai la quyet dinh co chu dich (danh dau **[LECH]**).

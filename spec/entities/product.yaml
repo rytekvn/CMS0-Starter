@@ -1,7 +1,7 @@
 # Map 1:1 tu code dang chay, khong them field nao chua ton tai:
 #   - prisma/schema.prisma                              -> model Product
-#   - apps/api-legacy/src/schemas/product.schema.ts     -> validation
-#   - apps/api-legacy/src/services/product.service.ts   -> audit event
+#   - apps/api/src/modules/products/product.schema.ts    -> validation
+#   - apps/api/src/modules/products/product.service.ts   -> audit event
 entity: Product
 description: CRUD mau cua starter - dung lam pattern khi tao module moi
 

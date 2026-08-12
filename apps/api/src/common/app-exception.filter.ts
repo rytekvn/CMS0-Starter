@@ -1,5 +1,5 @@
 // Doi loi quen thuoc thanh status dung, thay vi 500 chung chung.
-// Giu nguyen format loi cua apps/api-legacy/src/index.ts (onError).
+// Giu nguyen format loi cua stack Hono cu (onError) tu truoc khi migrate.
 import { Catch, HttpException, type ArgumentsHost, type ExceptionFilter } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 

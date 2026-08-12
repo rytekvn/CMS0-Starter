@@ -1,6 +1,6 @@
 # Acceptance — Product
 
-Mo ta **hanh vi that** cua `apps/api-legacy` (`routes/product.routes.ts` +
+Mo ta **hanh vi that** cua stack Hono cu (da xoa; `routes/product.routes.ts` +
 `services/product.service.ts`) tai thoi diem viet spec. Dung lam moc doi chieu
 khi migrate module nay sang NestJS (`apps/api`): hanh vi moi phai khop, lech
 cho nao phai la quyet dinh co chu dich.

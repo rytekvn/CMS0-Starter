@@ -1,6 +1,6 @@
 # Acceptance — File
 
-Mo ta **hanh vi that** cua `apps/api-legacy` (`routes/file.routes.ts` +
+Mo ta **hanh vi that** cua stack Hono cu (da xoa; `routes/file.routes.ts` +
 `services/file.service.ts`) tai thoi diem viet spec, va cua `apps/api`
 (`modules/files/`) sau khi migrate. Hai stack da duoc doi chieu bang curl tren
 cung mot file: JSON tra ve (bo `id`/`url`/`createdAt`/`updatedAt`) va **moi
@@ -60,7 +60,7 @@ Base path: `/files`. Ca 2 route deu qua `requireAuth` / `JwtAuthGuard`.
 ## Frontend (`apps/admin-web`)
 
 - `components/file-uploader.tsx` — **da co san, chua trang nao dung**, dung parity
-  voi `apps/admin-web-legacy/src/components/FileUploader.tsx` (o do cung chua ai dung).
+  voi component FileUploader cua stack Vite cu (da xoa; o do cung chua ai dung).
   Chon file -> upload ngay (khong co nut submit); hien `Dang tai len...` khi cho,
   `form-error` khi loi, ten + dung luong + nut `Tai ve` khi xong.
 - Upload di qua **Server Action** `components/file-uploader.actions.ts` -> token

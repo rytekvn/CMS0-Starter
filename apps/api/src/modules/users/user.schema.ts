@@ -1,4 +1,4 @@
-// Copy 1:1 tu apps/api-legacy/src/schemas/user.schema.ts (Zod, khong class-validator).
+// Hanh vi khop user.schema cua stack Hono cu truoc khi migrate (Zod, khong class-validator).
 import { z } from "zod";
 
 export const createUserSchema = z.object({
