@@ -1,0 +1,12 @@
+{
+  "name": "@rytek/cli",
+  "version": "0.7.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "rytek": "./index.mjs"
+  },
+  "scripts": {
+    "test": "node --test \"*.test.mjs\""
+  }
+}

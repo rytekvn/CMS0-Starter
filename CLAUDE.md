@@ -14,7 +14,7 @@ apps/admin-web       Next.js :3000   dang chay that: /login, /products, /users, 
 prisma/              schema.prisma - single source of truth cho DB
 spec/                contract nghiep vu da duyet
 docs/                roadmap platform
-packages/            (chua co package nao - tao khi co consumer that)
+packages/cli         @rytek/cli - `pnpm cli create <path>` sinh du an moi tu repo nay
 ```
 
 Hai app cu `apps/api-legacy` (Hono) va `apps/admin-web-legacy` (Vite) **da bi
@@ -165,6 +165,22 @@ pnpm dev:web                     # Next.js :3000
 - [ ] Acceptance criteria moi/sua da gan `[AC-...]` + `**Test:**`.
 - [ ] Bao cao: file da doi, quyet dinh, gioi han, ket qua verify.
 
+## CLI
+
+`packages/cli` (`@rytek/cli`, zero dependency) sinh du an moi tu chinh repo nay:
+
+```bash
+pnpm cli doctor              # kiem Node/pnpm/Docker/dia/git
+pnpm cli create ../my-shop   # sinh du an moi (duong dan PHAI ngoai starter)
+```
+
+- Danh sach file copy = `git ls-files` -> **thay doi chua commit khong di theo**.
+- CLI **chi sinh file + doi ten + in huong dan**: khong tu chay install/git/docker/db.
+- Bang doi ten (`cms_starter` -> ten db moi, H1/Project Context cua CLAUDE.md, ...)
+  nam trong `REWRITES` o `packages/cli/index.mjs`. Doi ten heading trong CLAUDE.md
+  ma quen sua bang nay -> `replaceSection` throw, khong lech im lang.
+- Chi tiet quyet dinh: `spec/decisions/ADR-0003-cli-sinh-du-an-moi.md`.
+
 ## Release Process
 
 Danh so theo repo nay (khac voi danh so cua roadmap platform).
@@ -189,6 +205,9 @@ Danh so theo repo nay (khac voi danh so cua roadmap platform).
 - **v0.6 — Spec-Driven. DONE.** Template spec (`spec/**/_template.*`), prompt library
   (skill `/new-entity`), mapping acceptance criteria -> test (AC-ID + dong `**Test:**`),
   Definition of Ready kiem tu dong mot phan (`pnpm spec:check`).
-- **v0.7 — CLI.** `pnpm create rytek-cms`, `rytek doctor`.
+- **v0.7 — CLI. DONE.** `packages/cli` (`@rytek/cli`, zero dependency):
+  `pnpm cli create <path>` sinh du an moi tu `git ls-files` + bang doi ten,
+  `pnpm cli doctor` kiem Node/pnpm/Docker/dia/git — ADR-0003. Publish
+  `pnpm create rytek-cms` len npm: chua lam (buoc xuat ban, xem ADR-0003 §5).
 - **v0.8+ — Production hardening.** Security headers, backup/restore runbook,
   metrics/alerting/tracing, load test, deployment + rollback runbook.

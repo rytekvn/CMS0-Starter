@@ -13,10 +13,23 @@ cuoi cung migrate xong — xem `spec/decisions/ADR-0001-nestjs-nextjs-pnpm-monor
 ```
 apps/api                NestJS  :4000   auth, user, role, product, file
 apps/admin-web          Next.js :3000   login, products, users, roles
+packages/cli            @rytek/cli - sinh du an moi tu starter
 prisma/                 schema.prisma - single source of truth cho DB
 spec/                   contract nghiep vu da duyet + ADR
 docs/                   roadmap platform
 ```
+
+## Tao du an moi tu starter
+
+```bash
+pnpm cli doctor              # kiem Node / pnpm / Docker / dia / git
+pnpm cli create ../my-shop   # duong dan PHAI nam ngoai starter
+```
+
+CLI copy nhung file `git ls-files` liet ke (nen **commit truoc khi chay**), doi
+ten du an + ten database, roi in cac buoc tiep theo — no khong tu chay
+`install`/`git init`/`docker`/`migrate`. Chi tiet:
+`spec/decisions/ADR-0003-cli-sinh-du-an-moi.md`.
 
 ## Chay lan dau
 

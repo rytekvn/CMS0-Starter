@@ -4,11 +4,12 @@
   "private": true,
   "packageManager": "pnpm@10.34.5",
   "scripts": {
-    "lint": "oxlint apps",
+    "lint": "oxlint apps packages",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test && node --test \"scripts/*.test.mjs\"",
     "build": "pnpm -r build",
     "spec:check": "node scripts/check-spec.mjs",
+    "cli": "node packages/cli/index.mjs",
     "dev:api": "pnpm --filter @rytek/api dev",
     "dev:web": "pnpm --filter @rytek/admin-web dev",
     "db:generate": "prisma generate --schema prisma/schema.prisma",
