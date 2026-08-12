@@ -1,0 +1,60 @@
+# Map 1:1 tu code dang chay, khong them field nao chua ton tai:
+#   - prisma/schema.prisma                                  -> model <EntityName>
+#   - apps/api/src/modules/<modules>/<entity>.schema.ts      -> validation
+#   - apps/api/src/modules/<modules>/<entity>.service.ts     -> audit event
+entity: <EntityName>
+description: <Mo ta 1-2 cau: entity nay dai dien cho cai gi, dung o dau>
+
+fields:
+  id:
+    type: string
+    generated: true
+    format: cuid   # Prisma @default(cuid()), khong phai uuid
+  # -- Field nghiep vu: liet ke dung field THAT co trong Prisma model, khong doan --
+  <fieldName>:
+    type: string   # string | int | datetime | boolean | enum | string[] | object[]
+    required: true
+    minLength: 1
+  # unique: true       -> chi khi Prisma co @unique; ghi ro ma loi khi trung (vd P2002 -> 409).
+  # format: email      -> chi khi field can dinh dang cu the (email, cuid, ...).
+  # writeOnly: true    -> field chi nhan qua input, KHONG BAO GIO xuat hien trong response
+  #                       (vd password cua User: luu bcrypt hash; roleIds/permissionKeys: input-only).
+  # readOnly: true     -> field chi xuat hien trong response, khong nhan qua input
+  #                       (vd roles cua User). Kem `shape:` mo ta hinh dang JSON tra ve.
+  # type: enum + values: [...] -> ghi ro `enforcedAt: application` neu DB KHONG co
+  #                       CHECK constraint (Prisma String @default(...)).
+  createdAt: { type: datetime, generated: true }
+  updatedAt: { type: datetime, generated: true }
+  createdBy: { type: string, required: false, description: User.id cua nguoi tao }
+  updatedBy: { type: string, required: false, description: User.id cua nguoi sua gan nhat }
+  deletedAt: { type: datetime, required: false, description: Soft delete. Moi query list/detail phai loc deletedAt = null }
+
+indexes: []
+# Liet ke moi index THAT co trong Prisma model (list phang, vd "email (unique)"). De [] neu chua co.
+
+softDelete: true
+defaultOrder: createdAt desc
+# Neu LECH so voi ban truoc (vd legacy khong co ORDER BY), ghi "# LECH CO CHU DICH so voi ..." kem ly do.
+
+# relations:
+#   Chi them muc nay khi entity THAT SU co quan he. Neu co chu dich KHONG co quan he
+#   nao (vd FileAsset), ghi relations: [] kem "# Co y de rong: ..." de phan biet voi "chua nghi toi".
+
+permissions:
+  - <entity>.read
+  - <entity>.create
+  - <entity>.update
+  - <entity>.delete
+  # Them action rieng cua entity nay neu co (vd .import, .export, .bulk, .upload)
+
+audit:
+  # Chuoi `action` THAT duoc ghi vao AuditLog qua logging/audit.ts. Chi liet ke event THAT co.
+  events:
+    - <entity>.create   # entityId = <EntityName>.id, metadata: { <field...> }
+    - <entity>.update   # entityId = <EntityName>.id, metadata: { fields }
+    - <entity>.delete   # entityId = <EntityName>.id, khong metadata
+
+# referenceData:
+#   Chi them khi entity co du lieu tham chieu do seed so huu, KHONG co CRUD qua API
+#   (vd Permission cua Role — xem spec/entities/role.yaml lam mau that).
+#   <TenDuLieu>: { ownedBy: <file seed>, exposedBy: <route doc>, mutableViaApi: false }

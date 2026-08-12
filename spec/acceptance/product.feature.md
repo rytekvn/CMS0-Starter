@@ -7,7 +7,8 @@ cho nao phai la quyet dinh co chu dich.
 
 Base path: `/products`. Moi route deu qua `requireAuth`.
 
-## Chung
+## [AC-PRODUCT-01] Chung
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Given** request khong co header `Authorization: Bearer <token>`
   **When** goi bat ky route `/products/*`
@@ -21,7 +22,8 @@ Base path: `/products`. Moi route deu qua `requireAuth`.
 - **Given** record khong ton tai khi update/delete (Prisma P2025)
   **Then** tra `404 {"error":"Not found"}`
 
-## GET /products — danh sach (`product.read`)
+## [AC-PRODUCT-02] GET /products — danh sach (`product.read`)
+**Test:** mot phan — `apps/api/src/modules/products/product.schema.test.ts` (chi test validation Zod cua `productQuerySchema`, chua test hanh vi HTTP/DB that)
 
 - **Then** chi tra record co `deletedAt = null`, sap xep `createdAt` giam dan.
 - **Given** query `status=active|inactive` **Then** loc dung trang thai do.
@@ -33,13 +35,15 @@ Base path: `/products`. Moi route deu qua `requireAuth`.
 - **Given** query rong (`?status=`) — form gui khi chua chon gi
   **Then** coi nhu khong loc, khong bao loi.
 
-## GET /products/:id — chi tiet (`product.read`)
+## [AC-PRODUCT-03] GET /products/:id — chi tiet (`product.read`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Given** id ton tai va `deletedAt = null` **Then** `200` + object product.
 - **Given** id khong ton tai **hoac** da soft delete
   **Then** `404 {"error":"Not found"}`.
 
-## POST /products — tao (`product.create`)
+## [AC-PRODUCT-04] POST /products — tao (`product.create`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Given** body `{"name":"Ao thun"}` **Then** `201`, `status` mac dinh `"active"`,
   `createdBy` va `updatedBy` = id user dang dang nhap.
@@ -48,20 +52,23 @@ Base path: `/products`. Moi route deu qua `requireAuth`.
 - **Then** ghi AuditLog `product.create`, `entity="Product"`,
   `entityId=<product.id>`, `metadata={ name }`.
 
-## PATCH /products/:id — sua (`product.update`)
+## [AC-PRODUCT-05] PATCH /products/:id — sua (`product.update`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Given** body chi co mot phan field (vd `{"name":"..."}`)
   **Then** `200`, chi field do doi, `updatedBy` = user hien tai.
 - **Then** ghi AuditLog `product.update`, `metadata={ fields: [<ten field da gui>] }`.
 
-## DELETE /products/:id — xoa mem (`product.delete`)
+## [AC-PRODUCT-06] DELETE /products/:id — xoa mem (`product.delete`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Then** `200 {"ok":true}`, record **khong bi xoa cung**: `deletedAt` duoc set,
   `updatedBy` = user hien tai.
 - **Then** record bien mat khoi `GET /products` va `GET /products/:id`.
 - **Then** ghi AuditLog `product.delete` (khong metadata).
 
-## GET /products/export — xuat CSV (`product.export`)
+## [AC-PRODUCT-07] GET /products/export — xuat CSV (`product.export`)
+**Test:** chua co (lien quan gian tiep `apps/api/src/common/csv.test.ts` — test ham dung chung, khong test route)
 
 - **Then** `200`, `Content-Type: text/csv; charset=utf-8`,
   `Content-Disposition: attachment; filename="products.csv"`.
@@ -69,7 +76,8 @@ Base path: `/products`. Moi route deu qua `requireAuth`.
 - **Then** ap dung **cung bo filter** nhu `GET /products`.
 - **Then** route nay duoc khai bao truoc `/:id` de khong bi route param nuot mat.
 
-## POST /products/import — nhap CSV (`product.import`)
+## [AC-PRODUCT-08] POST /products/import — nhap CSV (`product.import`)
+**Test:** chua co (lien quan gian tiep `apps/api/src/common/csv.test.ts` — test ham dung chung, khong test route)
 
 - Request la `multipart/form-data`, field ten `file`.
 - **Given** thieu field `file` **Then** `400 {"error":"Missing \`file\` field"}`.
@@ -84,7 +92,8 @@ Base path: `/products`. Moi route deu qua `requireAuth`.
 - **Then** tra `{ success, failed, errors[] }` va ghi AuditLog `product.import`
   voi `entityId="*"`, `metadata={ success, failed }`.
 
-## POST /products/bulk — hanh dong hang loat (`product.bulk`)
+## [AC-PRODUCT-09] POST /products/bulk — hanh dong hang loat (`product.bulk`)
+**Test:** mot phan — `apps/api/src/modules/products/product.schema.test.ts` (chi test validation Zod cua `bulkActionSchema`, chua test hanh vi HTTP/DB that)
 
 - Body: `{ "ids": string[], "action": "delete" | "activate" | "deactivate" }`.
 - **Given** `ids` rong hoac > 500 phan tu **Then** `400`.

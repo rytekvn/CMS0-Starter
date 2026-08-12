@@ -8,7 +8,8 @@ status code + body loi deu trung nhau**.
 
 Base path: `/files`. Ca 2 route deu qua `requireAuth` / `JwtAuthGuard`.
 
-## Chung
+## [AC-FILE-01] Chung
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Given** request khong co header `Authorization: Bearer <token>`
   **Then** `401 {"error":"Unauthorized"}`
@@ -18,7 +19,8 @@ Base path: `/files`. Ca 2 route deu qua `requireAuth` / `JwtAuthGuard`.
 - **Given** metadata file khong hop le Zod
   **Then** `400 {"error":"Validation failed","issues":[...]}`
 
-## POST /files — tai len (`file.upload`)
+## [AC-FILE-02] POST /files — tai len (`file.upload`)
+**Test:** mot phan — `apps/api/src/modules/files/file.schema.test.ts` (test day du `uploadSchema`: whitelist mimetype, chan prototype-pollution key, bien size, filename — chua test ghi file len dia/AuditLog/unicode qua HTTP that)
 
 - Body: `multipart/form-data`, field **`file`**.
 - **Given** khong co field ten `file` (sai ten hoac khong gui gi)
@@ -42,7 +44,8 @@ Base path: `/files`. Ca 2 route deu qua `requireAuth` / `JwtAuthGuard`.
 - **Then** ghi AuditLog `file.upload`, `entity="FileAsset"`, `entityId=<asset.id>`,
   `metadata={ filename, size }`.
 
-## GET /files/:id — tai ve (`file.read`)
+## [AC-FILE-03] GET /files/:id — tai ve (`file.read`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Given** id ton tai, `deletedAt = null`, file con tren disk **Then** `200` + noi
   dung file **nguyen ven tung byte** (da verify bang `shasum -a 256`).
@@ -57,7 +60,8 @@ Base path: `/files`. Ca 2 route deu qua `requireAuth` / `JwtAuthGuard`.
 - **Then** duong dan doc file di qua `path.basename(url)` -> du du lieu DB bi sua tay
   cung khong doc ra ngoai thu muc uploads.
 
-## Frontend (`apps/admin-web`)
+## [AC-FILE-04] Frontend (`apps/admin-web`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - `components/file-uploader.tsx` — **da co san, chua trang nao dung**, dung parity
   voi component FileUploader cua stack Vite cu (da xoa; o do cung chua ai dung).

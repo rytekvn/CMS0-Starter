@@ -72,3 +72,38 @@ Giu lai de doi chieu lich su; hanh vi dung la hanh vi cua `apps/api`.
 - Moi entity moi can toi thieu: `entities/<name>.yaml`,
   `permissions/<name>.yaml`, `acceptance/<name>.feature.md`.
 - Quyet dinh kien truc co anh huong lau dai -> them ADR trong `decisions/`.
+
+## Dung template cho entity moi
+
+Khi them entity moi, copy 4 file `_template.*` sang ten entity that va dien
+theo huong dan comment trong tung file — khong tu bo sung hay bot cau truc:
+
+- `entities/_template.yaml` -> `entities/<name>.yaml`
+- `permissions/_template.yaml` -> `permissions/<name>.yaml`
+- `acceptance/_template.feature.md` -> `acceptance/<name>.feature.md`
+- `decisions/_template.md` -> `decisions/ADR-<NNNN>-<slug>.md` (chi khi co
+  quyet dinh kien truc that su can luu lai, khong phai moi entity deu can ADR)
+
+Template rut tu doi chieu ca 4 entity that dang co (`product`, `user`, `role`,
+`file`) — field/muc chi dung khi can (writeOnly, readOnly, relations,
+referenceData, ...) duoc ghi ro trong comment, khong bat buoc dien het.
+
+## Quy uoc AC-ID va mapping test
+
+Moi heading `##` trong `acceptance/*.feature.md` (tru "Out of scope") bat dau
+bang mot ID dang `[AC-<ENTITY>-NN]` (2 chu so, vd `[AC-PRODUCT-01]`), va co
+mot dong `**Test:**` ngay duoi heading tro toi file test lien quan:
+
+- Tro cap **file**, khong cap dong, de tranh rã theo so dong doi.
+- Neu chi cover mot phan hanh vi (vd chi test Zod schema, chua test route
+  HTTP that), ghi ro "mot phan — <duong dan file test>" kem ly do ngan.
+- Neu chua co test tu dong, ghi `**Test:** chua co, da verify thu cong qua
+  curl luc migrate`.
+
+Repo nay **khong dung `test()`/`describe()` cua `node:test`** — toan bo file
+test la script `assert` thuan (`node:assert/strict`, top-level). Vi vay AC-ID
+gan vao **heading spec**, khong gan vao ten ham test (khong ton tai).
+
+Dong "chua co test" phan anh **hien trang that**, khong phai backlog bat
+buoc phai lam ngay — dung tu them test chi de lap day dong nay khi khong
+duoc yeu cau.

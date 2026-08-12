@@ -31,6 +31,7 @@ Doc theo dung thu tu nay truoc khi code (roadmap §9.2):
 1. File nay.
 2. `spec/README.md` + spec cua entity dang lam
    (`spec/entities/*.yaml`, `spec/permissions/*.yaml`, `spec/acceptance/*.feature.md`).
+   Entity moi: copy 4 file `spec/**/_template.*` (xem huong dan trong `spec/README.md`).
 3. `spec/decisions/` — ADR lien quan.
 4. `docs/rytek_platform_roadmap.md` — §5 tech stack, §8 spec, §9 AI workflow, §18 quyet dinh da chot.
 5. Module gan nhat da co + test cua no — module tham chieu chuan cho NestJS + Next.js:
@@ -157,6 +158,7 @@ pnpm dev:web                     # Next.js :3000
 - [ ] Audit log va structured log can thiet da co; khong co secret trong log.
 - [ ] `pnpm lint && pnpm typecheck && pnpm test && pnpm build` deu xanh.
 - [ ] Spec/docs/ADR cap nhat neu quyet dinh thay doi.
+- [ ] Acceptance criteria moi/sua da gan `[AC-...]` + `**Test:**`.
 - [ ] Bao cao: file da doi, quyet dinh, gioi han, ket qua verify.
 
 ## Release Process

@@ -7,7 +7,9 @@ quyet dinh co chu dich (danh dau **[LECH]**).
 
 Base path: `/roles`. Moi route deu qua `requireAuth`.
 
-## Chung
+## [AC-ROLE-01] Chung
+**Test:** chua co, da verify thu cong qua curl luc migrate
+(lien quan gian tiep `apps/api/src/common/auth/can.test.ts` + `apps/api/src/common/auth/auth-cache.test.ts` — logic dung chung, khong test endpoint truc tiep)
 
 - **Given** request khong co header `Authorization: Bearer <token>`
   **Then** `401 {"error":"Unauthorized"}`
@@ -23,13 +25,15 @@ Base path: `/roles`. Moi route deu qua `requireAuth`.
 - **Then** moi response role deu `include` mang `permissions` day du
   (chi Permission co `deletedAt = null`).
 
-## GET /roles — danh sach (`role.read`)
+## [AC-ROLE-02] GET /roles — danh sach (`role.read`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Then** chi tra record co `deletedAt = null`, kem `permissions`.
 - **Then** khong nhan query param nao.
 - **[LECH]** `apps/api` sap xep `createdAt` giam dan; legacy khong co ORDER BY.
 
-## GET /roles/permissions — danh sach permission co the gan (`role.read`)
+## [AC-ROLE-03] GET /roles/permissions — danh sach permission co the gan (`role.read`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **[LECH] Endpoint moi, chi co o `apps/api`** — legacy khong co. Ly do: form gan
   quyen o `apps/admin-web` can danh sach key de render checkbox; khong tao
@@ -39,12 +43,14 @@ Base path: `/roles`. Moi route deu qua `requireAuth`.
 - **Then** route nay duoc khai bao **truoc** `/:id` de khong bi route param nuot mat
   (khong duoc tra `404 {"error":"Not found"}`).
 
-## GET /roles/:id — chi tiet (`role.read`)
+## [AC-ROLE-04] GET /roles/:id — chi tiet (`role.read`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Given** id ton tai va `deletedAt = null` **Then** `200` + object role kem `permissions`.
 - **Given** id khong ton tai **hoac** da soft delete **Then** `404 {"error":"Not found"}`.
 
-## POST /roles — tao (`role.create`)
+## [AC-ROLE-05] POST /roles — tao (`role.create`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - Body: `{ "name": string(min 1), "permissionKeys"?: string[] }`.
 - **Then** `201`, `createdBy`/`updatedBy` = id user dang dang nhap,
@@ -55,7 +61,8 @@ Base path: `/roles`. Moi route deu qua `requireAuth`.
 - **Then** ghi AuditLog `role.create`, `entity="Role"`, `entityId=<role.id>`,
   `metadata={ name }`.
 
-## PATCH /roles/:id — sua (`role.update`)
+## [AC-ROLE-06] PATCH /roles/:id — sua (`role.update`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - Body la ban `.partial()` cua schema tao.
 - **Given** co `permissionKeys` **Then** dung `set` — **thay the toan bo** danh sach
@@ -66,7 +73,8 @@ Base path: `/roles`. Moi route deu qua `requireAuth`.
 - **Then** thay doi quyen cua role co hieu luc **ngay o request ke tiep** cua moi
   user dang gan role do (guard load lai quyen tu DB moi request, khong cache).
 
-## DELETE /roles/:id — xoa mem (`role.delete`)
+## [AC-ROLE-07] DELETE /roles/:id — xoa mem (`role.delete`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Then** `200 {"ok":true}`, `deletedAt` duoc set, `updatedBy` = user hien tai.
 - **Then** role bien mat khoi `GET /roles` va `GET /roles/:id`.

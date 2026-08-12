@@ -7,7 +7,9 @@ khop, lech cho nao phai la quyet dinh co chu dich (danh dau **[LECH]**).
 
 Base path: `/auth`, `/users`. Moi route `/users/*` deu qua `requireAuth`.
 
-## Chung
+## [AC-USER-01] Chung
+**Test:** chua co, da verify thu cong qua curl luc migrate
+(lien quan gian tiep `apps/api/src/common/auth/can.test.ts` + `apps/api/src/common/auth/auth-cache.test.ts` — logic dung chung, khong test endpoint truc tiep)
 
 - **Given** request khong co header `Authorization: Bearer <token>`
   **When** goi bat ky route `/users/*` hoac `/auth/me`
@@ -27,7 +29,8 @@ Base path: `/auth`, `/users`. Moi route `/users/*` deu qua `requireAuth`.
 - **Then** field `password` **khong bao gio** xuat hien trong bat ky response nao
   (moi query doc di qua `userSelect`).
 
-## POST /auth/login — dang nhap (public, khong can token)
+## [AC-USER-02] POST /auth/login — dang nhap (public, khong can token)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - Body: `{ "email": string(email), "password": string(min 6) }`.
 - **Given** email + mat khau dung **Then** `200 {"token":"<jwt>"}`,
@@ -42,7 +45,8 @@ Base path: `/auth`, `/users`. Moi route `/users/*` deu qua `requireAuth`.
   nhu legacy -> token cua hai stack **dung lan nhau duoc**. Day la chu dich trong
   giai doan chay song song; se bien mat khi xoa `apps/*-legacy` o v0.5.
 
-## GET /auth/me — user hien tai (chi can token hop le, khong can permission key)
+## [AC-USER-03] GET /auth/me — user hien tai (chi can token hop le, khong can permission key)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Then** `200` + object user (`userSelect`: `id`, `email`, `name`,
   `createdAt`, `updatedAt`, `createdBy`, `updatedBy`, `deletedAt`,
@@ -53,20 +57,23 @@ Base path: `/auth`, `/users`. Moi route `/users/*` deu qua `requireAuth`.
   **Then** quyen cua role do **khong** xuat hien trong `permissions`.
 - **Then** `roles` chi gom `UserRole` co `deletedAt = null`.
 
-## GET /users — danh sach (`user.read`)
+## [AC-USER-04] GET /users — danh sach (`user.read`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Then** chi tra record co `deletedAt = null`.
 - **Then** khong nhan query param nao (khong co filter/search/pagination).
 - **[LECH]** `apps/api` sap xep `createdAt` giam dan; legacy khong co ORDER BY
   (thu tu khong on dinh). Ly do: phan trang o UI can thu tu on dinh.
 
-## GET /users/:id — chi tiet (`user.read`)
+## [AC-USER-05] GET /users/:id — chi tiet (`user.read`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Given** id ton tai va `deletedAt = null` **Then** `200` + object user.
 - **Given** id khong ton tai **hoac** da soft delete
   **Then** `404 {"error":"Not found"}`.
 
-## POST /users — tao (`user.create`)
+## [AC-USER-06] POST /users — tao (`user.create`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - Body: `{ "email", "password", "name", "roleIds"?: string[] }`.
 - **Given** body hop le **Then** `201`, password duoc hash bcrypt (rounds 10),
@@ -78,7 +85,8 @@ Base path: `/auth`, `/users`. Moi route `/users/*` deu qua `requireAuth`.
 - **Then** ghi AuditLog `user.create`, `entity="User"`, `entityId=<user.id>`,
   `metadata={ email }`.
 
-## PATCH /users/:id — sua (`user.update`)
+## [AC-USER-07] PATCH /users/:id — sua (`user.update`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - Body la ban `.partial()` cua schema tao: moi field deu tuy chon.
 - **Given** body chi co mot phan field **Then** `200`, chi field do doi,
@@ -94,7 +102,8 @@ Base path: `/auth`, `/users`. Moi route `/users/*` deu qua `requireAuth`.
 - **Then** ghi AuditLog `user.update`, `metadata={ fields: [<ten field da gui>] }`
   (ke ca `password` — chi ghi **ten** field, khong ghi gia tri).
 
-## DELETE /users/:id — xoa mem (`user.delete`)
+## [AC-USER-08] DELETE /users/:id — xoa mem (`user.delete`)
+**Test:** chua co, da verify thu cong qua curl luc migrate
 
 - **Then** `200 {"ok":true}`, record **khong bi xoa cung**: `deletedAt` duoc set,
   `updatedBy` = user hien tai.

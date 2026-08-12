@@ -1,0 +1,30 @@
+# Map 1:1 tu apps/api/src/seed.ts (PERMISSION_KEYS + ROLE_PERMISSIONS).
+# Quyen luu trong DB (Role -> Permission), khong hard-code trong code.
+entity: <EntityName>
+
+permissions:
+  <entity>.read:   Xem danh sach va chi tiet <entity>
+  <entity>.create: Tao <entity> moi
+  <entity>.update: Sua <entity>
+  <entity>.delete: Xoa mem <entity> (set deletedAt)
+  # Them 1 dong cho moi permission key rieng cua entity
+
+matrix:
+  super_admin: [<entity>.read, <entity>.create, <entity>.update, <entity>.delete]
+  admin:       [<entity>.read, <entity>.create, <entity>.update, <entity>.delete]
+  staff:       [<entity>.read]
+  viewer:      [<entity>.read]
+  # Dieu chinh theo nghiep vu THAT, BAT BUOC kem comment TAI SAO (xem permissions/product.yaml lam mau).
+
+enforcement:
+  backend:
+    - Moi route <entity> qua `JwtAuthGuard` truoc (401 neu thieu/sai token).
+    - Moi route kiem `@RequirePermission("<key>")` -> 403 neu khong du quyen.
+    - Role da soft delete khong con cap quyen (xem common/auth/can.ts).
+  frontend:
+    - UI an/hien action theo cung bo key (apps/admin-web/app/(app)/<entity>/permissions.ts).
+    - An o frontend chi la UX; backend van la cho quyet dinh cuoi.
+
+# notes:
+#   Chi them khi co hanh vi bien can luu lai (vd "user tu xoa minh khong bi chan").
+#   - <mo ta hanh vi bien>
