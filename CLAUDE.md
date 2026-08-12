@@ -31,7 +31,10 @@ Doc theo dung thu tu nay truoc khi code (roadmap §9.2):
 1. File nay.
 2. `spec/README.md` + spec cua entity dang lam
    (`spec/entities/*.yaml`, `spec/permissions/*.yaml`, `spec/acceptance/*.feature.md`).
-   Entity moi: copy 4 file `spec/**/_template.*` (xem huong dan trong `spec/README.md`).
+   Entity moi: copy 4 file `spec/**/_template.*` (xem huong dan trong `spec/README.md`),
+   hoac nhanh hon — chay skill `/new-entity` (`.claude/skills/new-entity/`) de sinh san
+   3 file spec tu template. Kiem cau truc bang `pnpm spec:check [entity]` (cong cu tu
+   kiem, khong phai CI gate) truoc khi coi spec la Ready.
 3. `spec/decisions/` — ADR lien quan.
 4. `docs/rytek_platform_roadmap.md` — §5 tech stack, §8 spec, §9 AI workflow, §18 quyet dinh da chot.
 5. Module gan nhat da co + test cua no — module tham chieu chuan cho NestJS + Next.js:
@@ -54,7 +57,8 @@ pnpm db:seed                     # 4 role + permission + 1 super admin
 
 pnpm lint                        # oxlint
 pnpm typecheck                   # tsc --noEmit moi project
-pnpm test                        # node --test qua tsx
+pnpm test                        # node --test qua tsx (+ test cua scripts/)
+pnpm spec:check [entity]         # kiem cau truc spec (tu kiem, khong phai CI gate)
 pnpm build                       # nest build + next build
 
 pnpm dev:api                     # NestJS  :4000
@@ -182,8 +186,9 @@ Danh so theo repo nay (khac voi danh so cua roadmap platform).
   Tailwind + shadcn/ui, TanStack Table, permission-aware navigation.
   `apps/api-legacy` + `apps/admin-web-legacy` da bi xoa khoi repo; seed script
   chuyen ve `apps/api/src/seed.ts`.
-- **v0.6 — Spec-Driven.** Template spec, prompt library, mapping
-  acceptance criteria -> test, Definition of Ready/Done kiem tu dong mot phan.
+- **v0.6 — Spec-Driven. DONE.** Template spec (`spec/**/_template.*`), prompt library
+  (skill `/new-entity`), mapping acceptance criteria -> test (AC-ID + dong `**Test:**`),
+  Definition of Ready kiem tu dong mot phan (`pnpm spec:check`).
 - **v0.7 — CLI.** `pnpm create rytek-cms`, `rytek doctor`.
 - **v0.8+ — Production hardening.** Security headers, backup/restore runbook,
   metrics/alerting/tracing, load test, deployment + rollback runbook.

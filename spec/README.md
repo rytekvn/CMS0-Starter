@@ -88,6 +88,22 @@ Template rut tu doi chieu ca 4 entity that dang co (`product`, `user`, `role`,
 `file`) — field/muc chi dung khi can (writeOnly, readOnly, relations,
 referenceData, ...) duoc ghi ro trong comment, khong bat buoc dien het.
 
+Nhanh hon copy tay: chay skill `/new-entity` (`.claude/skills/new-entity/`).
+Skill doc chinh cac file `_template.*` nay luc chay (khong giu ban sao) roi sinh
+san 3 file spec da dien, da gan AC-ID. Skill **khong duyet spec ho** — van phai
+co nguoi doc lai truoc khi coi entity la Definition of Ready.
+
+## Tu kiem cau truc: `pnpm spec:check`
+
+`pnpm spec:check [entity]` (khong tham so = kiem het) kiem 4 thu, deu la cau
+truc chu khong phai ngu nghia: du 3 file cua entity; moi heading `##` (tru
+"Out of scope") co `[AC-<ENTITY>-NN]` khong trung; moi heading co dong
+`**Test:**` ngay duoi; file test duoc dong `**Test:**` tro toi phai ton tai that.
+
+Day la **cong cu tu kiem chay tay, khong phai CI gate** — spec dat `spec:check`
+khong co nghia la spec dung, chi nghia la khong sai cau truc. Nguoc lai, entity
+chua Ready van co the ton tai trong repo ma khong ai bi chan.
+
 ## Quy uoc AC-ID va mapping test
 
 Moi heading `##` trong `acceptance/*.feature.md` (tru "Out of scope") bat dau
