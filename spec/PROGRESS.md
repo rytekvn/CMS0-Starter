@@ -9,7 +9,8 @@ cho từng thay đổi nhỏ. Xem `@rules/session-continuity.md` (global).
 **v0.7 — CLI (`@rytek/cli`) — DONE.** Code xong, 4 lệnh kiểm tra xanh, đã
 commit (`cd50ffd`) và push lên remote.
 
-**v0.8 — Production hardening — mảng "security headers" DONE (chưa commit).**
+**v0.8 — Production hardening — mảng "security headers" DONE, đã commit
+(`2944ff4`) và push.**
 `apps/api`:
 - Helmet (`app.use(helmet(...))` trong `apps/api/src/main.ts`) — HSTS,
   X-Frame-Options, X-Content-Type-Options, CSP mặc định. CSP tắt khi
@@ -34,12 +35,33 @@ commit (`cd50ffd`) và push lên remote.
 - Không thêm ADR: middleware chuẩn, không có tranh cãi thiết kế — quyết
   định CORS đã ghi rõ ở đây và comment trong `main.ts`.
 - 4 lệnh kiểm tra (`lint`, `typecheck`, `test`, `build`) đều xanh.
+- Đã commit (`2944ff4`) và push.
+
+**v0.8 — mảng "backup/restore runbook" DONE, chưa commit.**
+- `scripts/db-backup.sh`: `pg_dump -Fc` (custom format, nén sẵn + chọn bảng
+  khi restore), đọc `DATABASE_URL` từ env hoặc fallback `apps/api/.env`.
+  Output `backups/<db>_<timestamp>.dump` (`backups/` đã thêm vào
+  `.gitignore`, không commit file backup).
+- `scripts/db-restore.sh <file.dump>`: `pg_restore --clean --if-exists`,
+  bắt buộc gõ đúng tên database để xác nhận trước khi ghi đè — không âm
+  thầm drop data.
+- `docs/runbooks/backup-restore.md`: khi nào backup, cách backup/restore
+  thủ công, cách verify (`\dt` + count row + thử chạy app), gợi ý retention
+  đơn giản (giữ 7 bản gần nhất), lý do không tự động hoá cron/không tích
+  hợp cloud storage lúc này (ghi trong chính runbook, không tạo ADR riêng
+  — không phải quyết định kiến trúc lớn có tranh cãi).
+- Đã test thực tế: backup DB dev (`cms_starter`) qua Postgres đang chạy
+  sẵn ở :5432, restore vào DB tạm `cms_starter_verify`, verify `\dt` +
+  `SELECT count(*) FROM "User"` đúng, sau đó dọn DB tạm + file backup test.
+- Không tự động hoá cron/systemd — user đã xác nhận: chạy thủ công trước,
+  chưa cần cron.
+- 4 lệnh kiểm tra (`lint`, `typecheck`, `test`, `build`) đều xanh.
 - **Chưa commit** — chờ user duyệt.
 
 ## Việc còn lại
 
-- [ ] v0.8 còn lại: backup/restore runbook, metrics/alerting/tracing, load
-      test, deploy + rollback runbook — chưa làm.
+- [ ] v0.8 còn lại: metrics/alerting/tracing, load test, deploy + rollback
+      runbook — chưa làm.
 - [ ] Chưa làm (ADR-0003 §5, không thuộc v0.7): publish
       `pnpm create rytek-cms` lên npm.
 - [x] User đã xác nhận: giữ CORS tắt như hiện tại.

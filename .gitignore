@@ -10,6 +10,7 @@ next-env.d.ts
 *.log
 coverage/
 apps/*/uploads/
+backups/
 
 # Bo qua .claude/ theo global gitignore cua Ryan, TRU skill dung chung trong starter:
 !.claude/
