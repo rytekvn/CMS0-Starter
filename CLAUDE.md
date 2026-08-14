@@ -52,7 +52,8 @@ pnpm install                     # 1 lockfile cho ca workspace
 docker compose up -d             # postgres 16 (:5432) + redis 7 (:6379)
 cp apps/api/.env.example apps/api/.env                     # + 3 app con lai
 pnpm db:generate                 # prisma generate
-pnpm db:migrate                  # prisma migrate dev
+pnpm db:migrate                  # prisma migrate dev — CHI dung o may dev
+pnpm db:deploy                   # prisma migrate deploy — dung khi deploy (khong reset DB)
 pnpm db:seed                     # 4 role + permission + 1 super admin
 
 pnpm lint                        # oxlint
@@ -106,7 +107,7 @@ pnpm dev:web                     # Next.js :3000
   `spec/decisions/ADR-0001-nestjs-nextjs-pnpm-monorepo.md`). Zod cung la nguon
   sinh OpenAPI schema, nen them DTO song song se tao nguon su that thu hai.
   Khong tin body/query.
-- **Auth:** moi route can auth (tru `/auth/login`, `/health*`).
+- **Auth:** moi route can auth (tru `/auth/login`, `/health*`, `/metrics`).
 - **Permission:** kiem tra bang key `"<entity>.<action>"` truoc moi hanh dong ghi;
   quyen den tu DB (Role -> Permission), khong hard-code trong code.
   Role da soft delete khong con cap quyen.
@@ -131,6 +132,12 @@ pnpm dev:web                     # Next.js :3000
   log `error` — **queue chet khong duoc doi hanh vi/response cua endpoint**.
   Truyen `requestId` (`req.id`) vao payload de log worker trace duoc.
   Xem `spec/decisions/ADR-0002-redis-cache-bullmq.md`.
+- **Metrics:** `GET /metrics` tra Prometheus text format (`prom-client`,
+  `common/metrics.ts` + `modules/metrics/`). **Khong auth** (scraper khong cam
+  token) — bao ve bang mang, khong publish ra internet; `@SkipThrottle()` giong
+  `/health*`. Label `route` **bat buoc** lay tu `req.route.path` (path da dang ky),
+  khong bao gio dan URL that vao label — se no cardinality. Chua co tracing/alert:
+  xem `spec/decisions/ADR-0004-metrics-prometheus-format.md`.
 - Idempotency: chua co use case cu the, chua lam. Khi lam, theo roadmap §7.8.
 
 ## Coding Convention
@@ -209,5 +216,11 @@ Danh so theo repo nay (khac voi danh so cua roadmap platform).
   `pnpm cli create <path>` sinh du an moi tu `git ls-files` + bang doi ten,
   `pnpm cli doctor` kiem Node/pnpm/Docker/dia/git — ADR-0003. Publish
   `pnpm create rytek-cms` len npm: chua lam (buoc xuat ban, xem ADR-0003 §5).
-- **v0.8+ — Production hardening.** Security headers, backup/restore runbook,
-  metrics/alerting/tracing, load test, deployment + rollback runbook.
+- **v0.8 — Production hardening. DONE.** Security headers (helmet + throttler);
+  backup/restore runbook (`scripts/db-*.sh`, `docs/runbooks/backup-restore.md`);
+  metrics `GET /metrics` dang Prometheus text format (ADR-0004); load test
+  (`scripts/load-test.mjs`, `docs/runbooks/load-test.md`); deploy + rollback
+  runbook (`docs/runbooks/deploy.md` — git checkout tag + build tai cho +
+  systemd tren 1 VPS, **khong** Docker hoa app, ADR-0005).
+  **Alerting + tracing van con no** — hoan co chu dich den khi co may that
+  (ADR-0004 §7, §8 va §"Xem lai khi nao").

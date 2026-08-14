@@ -9,6 +9,7 @@ import { DatabaseModule } from "./infrastructure/database/database.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { FileModule } from "./modules/files/file.module";
 import { HealthModule } from "./modules/health/health.module";
+import { MetricsModule } from "./modules/metrics/metrics.module";
 import { NotificationModule } from "./modules/notifications/notification.module";
 import { ProductModule } from "./modules/products/product.module";
 import { RoleModule } from "./modules/roles/role.module";
@@ -29,6 +30,7 @@ import { UserModule } from "./modules/users/user.module";
     BullModule.forRoot({ connection: { url: REDIS_URL, maxRetriesPerRequest: null } }),
     NotificationModule,
     HealthModule,
+    MetricsModule,
     AuthModule,
     ProductModule,
     UserModule,

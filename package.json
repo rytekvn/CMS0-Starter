@@ -9,15 +9,18 @@
     "test": "pnpm -r test && node --test \"scripts/*.test.mjs\"",
     "build": "pnpm -r build",
     "spec:check": "node scripts/check-spec.mjs",
+    "load-test": "node scripts/load-test.mjs",
     "cli": "node packages/cli/index.mjs",
     "dev:api": "pnpm --filter @rytek/api dev",
     "dev:web": "pnpm --filter @rytek/admin-web dev",
     "db:generate": "prisma generate --schema prisma/schema.prisma",
     "db:migrate": "pnpm --filter @rytek/api db:migrate",
+    "db:deploy": "pnpm --filter @rytek/api db:deploy",
     "db:seed": "pnpm --filter @rytek/api db:seed"
   },
   "devDependencies": {
     "@prisma/client": "^5.22.0",
+    "autocannon": "^8.0.0",
     "oxlint": "1.42.0",
     "prisma": "^5.22.0"
   }
